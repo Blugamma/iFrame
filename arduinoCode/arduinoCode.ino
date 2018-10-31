@@ -2,15 +2,6 @@
 
 FASTLED_USING_NAMESPACE
 
-// FastLED "100-lines-of-code" demo reel, showing just a few 
-// of the kinds of animation patterns you can quickly and easily 
-// compose using FastLED.  
-//
-// This example also shows one easy way to define multiple 
-// animations patterns and have them automatically rotate.
-//
-// -Mark Kriegsman, December 2014
-
 #if defined(FASTLED_VERSION) && (FASTLED_VERSION < 3001000)
 #warning "Requires FastLED 3.1 or later; check github for latest code."
 #endif
@@ -29,7 +20,7 @@ unsigned long delayStart = 0; // the time the delay started
 bool delayRunning = false;
 
 void setup() {
-  //delay(3000); // 3 second delay for recovery
+ 
   pinMode(buzzer, OUTPUT);
   // tell FastLED about the LED strip configuration
   FastLED.addLeds<LED_TYPE,DATA_PIN,COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
@@ -37,16 +28,13 @@ void setup() {
 
   // set master brightness control
   FastLED.setBrightness(BRIGHTNESS);
-  //Serial.begin(9600);
+
   delayStart = millis();   // start delay
-   delayRunning = true; // not finished yet
+  delayRunning = true; // not finished yet
 }
 
-
-// List of patterns to cycle through.  Each is defined as a separate function below.
-
-
 uint8_t gHue = 0; // rotating "base color" used by many of the patterns
+
 void flashRainbowLED(int timer){
   delay(timer);
   noTone(buzzer);
@@ -75,7 +63,7 @@ void flashSolidLED(int delayer, uint32_t color){
  
 void timer(int delayer, uint32_t color, int lengthOfTime){
    if (delayRunning && ((millis() - delayStart) >= lengthOfTime)) {
-       // // prevent this code being run more then once
+      // prevent this code being run more then once
       flashSolidLED(delayer, color);
       //delayRunning = false;
   }
