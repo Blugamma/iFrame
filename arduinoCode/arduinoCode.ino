@@ -1,13 +1,20 @@
+
+
 #include <FastLED.h>
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
-
-
+#include <NTPClient.h>
+#include <WiFiUdp.h>
 FASTLED_USING_NAMESPACE
 
 #if defined(FASTLED_VERSION) && (FASTLED_VERSION < 3001000)
 #warning "Requires FastLED 3.1 or later; check github for latest code."
 #endif
+
+WiFiUDP ntpUDP;
+NTPClient timeClient(ntpUDP, "pool.ntp.org", 0, 60000);
+WiFiClient espClient;
+PubSubClient client(espClient);
 
 #define DATA_PIN    3
 //#define CLK_PIN   4
@@ -15,19 +22,16 @@ FASTLED_USING_NAMESPACE
 #define COLOR_ORDER GRB
 #define NUM_LEDS    64
 CRGB leds[NUM_LEDS];
-WiFiClient espClient;
-PubSubClient client(espClient);
 #define BRIGHTNESS          96
 #define FRAMES_PER_SECOND  120
+
 int buzzer = 4;
-unsigned long delayStart = 0; // the time the delay started
-bool delayRunning = false;
 const char* ssid     = "OnePlus5";
 const char* password = "password123";
 const char* mqttServer = "broker.i-dat.org";
 const int mqttPort = 80;
-uint8_t my_str[6]; // sting to store the incoming data from the publisher
-String str;
+uint8_t inc_payload[6]; // sting to store the incoming data from the publisher
+String curr_payload;
 uint8_t gHue = 0; // rotating "base color" used by many of the patterns
 
 void setup() {
@@ -40,9 +44,8 @@ void setup() {
   // set master brightness control
   FastLED.setBrightness(BRIGHTNESS);
 
-  delayStart = millis();   // start delay
-  delayRunning = true; // not finished yet
   wifi_setup();
+  
   client.setClient(espClient);
   client.setServer(mqttServer, mqttPort);
   client.setCallback(callback);
@@ -59,6 +62,7 @@ void setup() {
   }
   client.publish("iFrame", "Hello ESP World");
   client.subscribe("iFrame");
+  timeClient.begin();
 }
 
 
@@ -85,16 +89,6 @@ void flashSolidLED(int delayer, uint32_t color) {
   FastLED.show();
   fill_solid(leds, NUM_LEDS, CRGB::Black);
 }
-
-
-
-//void timer(int delayer, uint32_t color, int lengthOfTime) {
-//  if (delayRunning && ((millis() - delayStart) >= lengthOfTime)) {
-//    // prevent this code being run more then once
-//    flashSolidLED(delayer, color);
-//    //delayRunning = false;
-//  }
-//}
 
 void wifi_setup() {
   Serial.println();
@@ -125,46 +119,46 @@ void callback(char* topic, byte* payload, unsigned int length) {
   Serial.print("] ");
   for (int i = 0; i < length; i++) {
     Serial.print((char)payload[i]);
-    my_str[i] = (char)payload[i];  // copies the payload to my_str
+    inc_payload[i] = (char)payload[i];  // copies the payload to my_str
   }
   Serial.println();
-  
-  String str((char*)my_str); //convert to a string data type/////
-  
- 
-
-
 }
 
-void clearstring() {
+void clearPayload() {
   //Serial.flush(); // clears the buffer, you dont need this
   for (int r=0; r<7; r++){
-  my_str[r] = '\0'; // deletes each block
+  inc_payload[r] = '\0'; // deletes each block
   }
 }
+
 void loop()
 {
   client.loop();
+  String curr_payload((char*)inc_payload); //convert to a string data type/////
   FastLED.show();
    // Switch on the LED if an 1 was received as first character
-  if (str == "timerOn"){
+  if (curr_payload == "timerOn"){
+    //clearPayload(); // clears the string
     Serial.print("LED on");
     fill_solid(leds, NUM_LEDS, CRGB::Green);
+    
   }
-  if (str == "timerOf"){
+  if (curr_payload == "timerOf"){
+    //clearPayload(); // clears the string
     Serial.print("LED off");
     fill_solid(leds, NUM_LEDS, CRGB::Black);
+    
   }
-  clearstring(); // clears the string
-  //flashRainbowLED(1000);
-  //flashSolidLED(3000, CRGB::Blue);
-  //timer(2000, CRGB::Red, 10000);
-  //digitalWrite(buzzer, HIGH);
-  //Serial.write("buzzer off");
-  //delay(2000);
-  // send the 'leds' array out to the actual LED strip
+  clearPayload();
+  timeClient.update();
+  
+  
+  if (curr_payload == timeClient.getFormattedTime()){
+    fill_solid(leds, NUM_LEDS, CRGB::Red);
+    
+  }
+ 
 
 
-
-
+//clearPayload(); // clears the string
 }
