@@ -1,5 +1,3 @@
-
-
 #include <FastLED.h>
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
@@ -121,6 +119,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
     Serial.print((char)payload[i]);
     inc_payload[i] = (char)payload[i];  // copies the payload to my_str
   }
+  inc_payload[length] = '\0';
   Serial.println();
 }
 
@@ -136,28 +135,31 @@ void loop()
   client.loop();
   String curr_payload((char*)inc_payload); //convert to a string data type/////
   FastLED.show();
+  
    // Switch on the LED if an 1 was received as first character
   if (curr_payload == "timerOn"){
-    //clearPayload(); // clears the string
-    Serial.print("LED on");
+    //Serial.print("LED on");
     fill_solid(leds, NUM_LEDS, CRGB::Green);
-    
   }
   if (curr_payload == "timerOf"){
-    //clearPayload(); // clears the string
-    Serial.print("LED off");
+    //Serial.print("LED off");
     fill_solid(leds, NUM_LEDS, CRGB::Black);
     
   }
-  clearPayload();
+  //clearPayload();
   timeClient.update();
   
   
   if (curr_payload == timeClient.getFormattedTime()){
-    fill_solid(leds, NUM_LEDS, CRGB::Red);
+    
+    flashSolidLED(2000, CRGB::Red);
+    
+  
+  //noTone(buzzer);
+  
     
   }
- 
+ //Serial.println(curr_payload);
 
 
 //clearPayload(); // clears the string
