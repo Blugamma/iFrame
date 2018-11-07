@@ -43,7 +43,7 @@ void setup() {
   FastLED.setBrightness(BRIGHTNESS);
 
   wifi_setup();
-  
+
   client.setClient(espClient);
   client.setServer(mqttServer, mqttPort);
   client.setCallback(callback);
@@ -63,7 +63,6 @@ void setup() {
   timeClient.begin();
 }
 
-
 void flashRainbowLED(int timer) {
   delay(timer);
   noTone(buzzer);
@@ -75,19 +74,17 @@ void flashRainbowLED(int timer) {
   fill_solid(leds, NUM_LEDS, CRGB::Black);
 }
 
-
-
 void flashSolidLED(int delayer, uint32_t color) {
-    for (int e = 0; e < 5; e++){
-      delay(delayer);
-      noTone(buzzer);
-      FastLED.show();
-      fill_solid( leds, NUM_LEDS, color);
-      delay(delayer);
-      tone(buzzer, 1000);
-      FastLED.show();
-      fill_solid(leds, NUM_LEDS, CRGB::Black);
-    }
+  for (int e = 0; e < 5; e++) {
+    delay(delayer);
+    noTone(buzzer);
+    FastLED.show();
+    fill_solid( leds, NUM_LEDS, color);
+    delay(delayer);
+    tone(buzzer, 1000);
+    FastLED.show();
+    fill_solid(leds, NUM_LEDS, CRGB::Black);
+  }
 }
 
 long lastReconnectAttempt = 0;
@@ -95,7 +92,7 @@ long lastReconnectAttempt = 0;
 boolean reconnect() {
   if (client.connect("ESP8266Client")) {
     // Once connected, publish an announcement...
-    client.publish("iFrame","hello world");
+    client.publish("iFrame", "hello world");
     // ... and resubscribe
     client.subscribe("iFrame");
   }
@@ -139,8 +136,8 @@ void callback(char* topic, byte* payload, unsigned int length) {
 
 void clearPayload() {
   //Serial.flush(); // clears the buffer, you dont need this
-  for (int r=0; r<7; r++){
-  inc_payload[r] = '\0'; // deletes each block
+  for (int r = 0; r < 7; r++) {
+    inc_payload[r] = '\0'; // deletes each block
   }
 }
 
@@ -157,42 +154,29 @@ void loop()
     }
   } else {
     // Client connected
+    client.loop();
+    String curr_payload((char*)inc_payload); //convert to a string data type/////
+    FastLED.show();
 
-  
-  
+    // Switch on the LED if an 1 was received as first character
+    if (curr_payload == "timerOn") {
+      //Serial.print("LED on");
+      fill_solid(leds, NUM_LEDS, CRGB::Green);
+      clearPayload();
+    }
+    if (curr_payload == "timerOf") {
+      //Serial.print("LED off");
+      fill_solid(leds, NUM_LEDS, CRGB::Black);
+      clearPayload();
+    }
+    //clearPayload();
+    timeClient.update();
 
-  client.loop();
-  String curr_payload((char*)inc_payload); //convert to a string data type/////
-  FastLED.show();
-  
-   // Switch on the LED if an 1 was received as first character
-  if (curr_payload == "timerOn"){
-    //Serial.print("LED on");
-    fill_solid(leds, NUM_LEDS, CRGB::Green);
-    clearPayload();
-  }
-  if (curr_payload == "timerOf"){
-    //Serial.print("LED off");
-    fill_solid(leds, NUM_LEDS, CRGB::Black);
-    clearPayload();
-  }
-  //clearPayload();
-  timeClient.update();
-  
-  
-  if (curr_payload == timeClient.getFormattedTime()){
-    
-    flashSolidLED(2000, CRGB::Red);
-    
-  clearPayload();
-  fill_solid(leds, NUM_LEDS, CRGB::Black);
-  noTone(buzzer);
-  
-    
-  }
- //Serial.println("1" + curr_payload);
-
-
-//clearPayload(); // clears the string
+    if (curr_payload == timeClient.getFormattedTime()) {
+      flashSolidLED(2000, CRGB::Red);
+      clearPayload();
+      fill_solid(leds, NUM_LEDS, CRGB::Black);
+      noTone(buzzer);
+    }
   }
 }
