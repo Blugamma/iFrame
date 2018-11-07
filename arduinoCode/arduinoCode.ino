@@ -28,7 +28,7 @@ const char* ssid     = "OnePlus5";
 const char* password = "password123";
 const char* mqttServer = "broker.i-dat.org";
 const int mqttPort = 80;
-uint8_t inc_payload[6]; // sting to store the incoming data from the publisher
+uint8_t inc_payload[100]; // sting to store the incoming data from the publisher
 String curr_payload;
 uint8_t gHue = 0; // rotating "base color" used by many of the patterns
 
@@ -78,14 +78,28 @@ void flashRainbowLED(int timer) {
 
 
 void flashSolidLED(int delayer, uint32_t color) {
-  delay(delayer);
-  noTone(buzzer);
-  FastLED.show();
-  fill_solid( leds, NUM_LEDS, color);
-  delay(delayer);
-  tone(buzzer, 1000);
-  FastLED.show();
-  fill_solid(leds, NUM_LEDS, CRGB::Black);
+    for (int e = 0; e < 5; e++){
+      delay(delayer);
+      noTone(buzzer);
+      FastLED.show();
+      fill_solid( leds, NUM_LEDS, color);
+      delay(delayer);
+      tone(buzzer, 1000);
+      FastLED.show();
+      fill_solid(leds, NUM_LEDS, CRGB::Black);
+    }
+}
+
+long lastReconnectAttempt = 0;
+
+boolean reconnect() {
+  if (client.connect("ESP8266Client")) {
+    // Once connected, publish an announcement...
+    client.publish("iFrame","hello world");
+    // ... and resubscribe
+    client.subscribe("iFrame");
+  }
+  return client.connected();
 }
 
 void wifi_setup() {
@@ -132,6 +146,21 @@ void clearPayload() {
 
 void loop()
 {
+  if (!client.connected()) {
+    long now = millis();
+    if (now - lastReconnectAttempt > 5000) {
+      lastReconnectAttempt = now;
+      // Attempt to reconnect
+      if (reconnect()) {
+        lastReconnectAttempt = 0;
+      }
+    }
+  } else {
+    // Client connected
+
+  
+  
+
   client.loop();
   String curr_payload((char*)inc_payload); //convert to a string data type/////
   FastLED.show();
@@ -140,11 +169,12 @@ void loop()
   if (curr_payload == "timerOn"){
     //Serial.print("LED on");
     fill_solid(leds, NUM_LEDS, CRGB::Green);
+    clearPayload();
   }
   if (curr_payload == "timerOf"){
     //Serial.print("LED off");
     fill_solid(leds, NUM_LEDS, CRGB::Black);
-    
+    clearPayload();
   }
   //clearPayload();
   timeClient.update();
@@ -154,13 +184,15 @@ void loop()
     
     flashSolidLED(2000, CRGB::Red);
     
-  
-  //noTone(buzzer);
+  clearPayload();
+  fill_solid(leds, NUM_LEDS, CRGB::Black);
+  noTone(buzzer);
   
     
   }
- //Serial.println(curr_payload);
+ //Serial.println("1" + curr_payload);
 
 
 //clearPayload(); // clears the string
+  }
 }
