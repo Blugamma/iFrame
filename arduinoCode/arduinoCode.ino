@@ -190,7 +190,425 @@ void loop()
     //LED 41 = 3
     //LED 45 = 4
     //LED 49 = 5
-   
+    if (timeClient.getSeconds() == 1){
+       leds[30] = CRGB::Green;
+    }
+    else{
+       leds[30] = CRGB::Black;
+    }
+    //Minute 2
+    if (timeClient.getSeconds() == 2){
+       leds[31] = CRGB::Green;
+    }
+    else{
+       leds[31] = CRGB::Black;
+    }
+    //Minute 3
+    if (timeClient.getSeconds() == 3){
+       leds[32] = CRGB::Green;
+    }
+    else{
+       leds[32] = CRGB::Black;
+    }
+    //Minute 4
+    if (timeClient.getSeconds() == 4){
+       leds[33] = CRGB::Green;
+    }
+    else{
+       leds[33] = CRGB::Black;
+    }
+    //Minute 5
+    if (timeClient.getSeconds() == 5){
+       leds[34] = CRGB::Green;
+    }
+    else{
+       leds[34] = CRGB::Black;
+    }
+    //Minute 6
+    if (timeClient.getSeconds() == 6){
+       leds[35] = CRGB::Green;
+    }
+    else{
+       leds[35] = CRGB::Black;
+    }
+    //Minute 7
+    if (timeClient.getSeconds() == 7){
+       leds[36] = CRGB::Green;
+    }
+    else{
+       leds[36] = CRGB::Black;
+    }
+    //Minute 8
+    if (timeClient.getSeconds() == 8){
+       leds[37] = CRGB::Green;
+    }
+    else{
+       leds[37] = CRGB::Black;
+    }
+    //Minute 9
+    if (timeClient.getSeconds() == 9){
+       leds[38] = CRGB::Green;
+    }
+    else{
+       leds[38] = CRGB::Black;
+    }
+    //Minute 10
+    if (timeClient.getSeconds() == 10){
+       leds[39] = CRGB::Green;
+    }
+    else{
+       leds[39] = CRGB::Black;
+    }
+    //Minute 11
+    if (timeClient.getSeconds() == 11){
+       leds[40] = CRGB::Green;
+    }
+    else{
+       leds[40] = CRGB::Black;
+    }
+    //Minute 12
+    if (timeClient.getSeconds() == 12){
+       leds[41] = CRGB::Green;
+    }
+    else{
+       leds[41] = CRGB::Black;
+    }
+    //Minute 13
+    if (timeClient.getSeconds() == 13){
+       leds[42] = CRGB::Green;
+    }
+    else{
+       leds[42] = CRGB::Black;
+    }
+    //Minute 14
+    if (timeClient.getSeconds() == 14){
+       leds[43] = CRGB::Green;
+    }
+    else{
+       leds[43] = CRGB::Black;
+    }
+    //Minute 15
+    if (timeClient.getSeconds() == 15){
+       leds[44] = CRGB::Green;
+    }
+    else{
+       leds[44] = CRGB::Black;
+    }
+    //Minute 16
+    if (timeClient.getSeconds() == 16){
+       leds[45] = CRGB::Green;
+    }
+    else{
+       leds[45] = CRGB::Black;
+    }
+    //Minute 17
+    if (timeClient.getSeconds() == 17){
+       leds[46] = CRGB::Green;
+    }
+    else{
+       leds[46] = CRGB::Black;
+    }
+    //Minute 18
+    if (timeClient.getSeconds() == 18){
+       leds[47] = CRGB::Green;
+    }
+    else{
+       leds[47] = CRGB::Black;
+    }
+    //Minute 19
+    if (timeClient.getSeconds() == 19){
+       leds[48] = CRGB::Green;
+    }
+    else{
+       leds[48] = CRGB::Black;
+    }
+    //Minute 20
+    if (timeClient.getSeconds() == 20){
+       leds[49] = CRGB::Green;
+    }
+    else{
+       leds[49] = CRGB::Black;
+    }
+    //Minute 21
+    if (timeClient.getSeconds() == 21){
+       leds[50] = CRGB::Green;
+    }
+    else{
+       leds[50] = CRGB::Black;
+    }
+    //Minute 22
+    if (timeClient.getSeconds() == 22){
+       leds[51] = CRGB::Green;
+    }
+    else{
+       leds[51] = CRGB::Black;
+    }
+    //Minute 23
+    if (timeClient.getSeconds() == 23){
+       leds[52] = CRGB::Green;
+    }
+    else{
+       leds[52] = CRGB::Black;
+    }
+    //Minute 24
+    if (timeClient.getSeconds() == 24){
+       leds[53] = CRGB::Green;
+    }
+    else{
+       leds[53] = CRGB::Black;
+    }
+    //Minute 25
+    if (timeClient.getSeconds() == 25){
+       leds[54] = CRGB::Green;
+    }
+    else{
+       leds[54] = CRGB::Black;
+    }
+    //Minute 26
+    if (timeClient.getSeconds() == 26){
+       leds[55] = CRGB::Green;
+    }
+    else{
+       leds[55] = CRGB::Black;
+    }
+    //Minute 27
+    if (timeClient.getSeconds() == 27){
+       leds[56] = CRGB::Green;
+    }
+    else{
+       leds[56] = CRGB::Black;
+    }
+    //Minute 28
+    if (timeClient.getSeconds() == 28){
+       leds[57] = CRGB::Green;
+    }
+    else{
+       leds[57] = CRGB::Black;
+    }
+    //Minute 29
+    if (timeClient.getSeconds() == 29){
+       leds[58] = CRGB::Green;
+    }
+    else{
+       leds[58] = CRGB::Black;
+    }
+    //Minute 30
+    if (timeClient.getSeconds() == 30){
+       leds[59] = CRGB::Green;
+    }
+    else{
+       leds[59] = CRGB::Black;
+    }
+    //Minute 31
+    if (timeClient.getSeconds() == 31){
+       leds[0] = CRGB::Green;
+    }
+    else{
+       leds[0] = CRGB::Black;
+    }
+    //Minute 32
+    if (timeClient.getSeconds() == 32){
+       leds[1] = CRGB::Green;
+    }
+    else{
+       leds[1] = CRGB::Black;
+    }
+    //Minute 33
+    if (timeClient.getSeconds() == 33){
+       leds[2] = CRGB::Green;
+    }
+    else{
+       leds[2] = CRGB::Black;
+    }
+    //Minute 34
+    if (timeClient.getSeconds() == 34){
+       leds[3] = CRGB::Green;
+    }
+    else{
+       leds[3] = CRGB::Black;
+    }
+    //Minute 35
+    if (timeClient.getSeconds() == 35){
+       leds[4] = CRGB::Green;
+    }
+    else{
+       leds[4] = CRGB::Black;
+    }
+    //Minute 36
+    if (timeClient.getSeconds() == 36){
+       leds[5] = CRGB::Green;
+    }
+    else{
+       leds[5] = CRGB::Black;
+    }
+    //Minute 37
+    if (timeClient.getSeconds() == 37){
+       leds[6] = CRGB::Green;
+    }
+    else{
+       leds[6] = CRGB::Black;
+    }
+    //Minute 38
+    if (timeClient.getSeconds() == 38){
+       leds[7] = CRGB::Green;
+    }
+    else{
+       leds[7] = CRGB::Black;
+    }
+    //Minute 39
+    if (timeClient.getSeconds() == 39){
+       leds[8] = CRGB::Green;
+    }
+    else{
+       leds[8] = CRGB::Black;
+    }
+    //Minute 40
+    if (timeClient.getSeconds() == 39){
+       leds[9] = CRGB::Green;
+    }
+    else{
+       leds[9] = CRGB::Black;
+    }
+    //Minute 41
+    if (timeClient.getSeconds() == 40){
+       leds[10] = CRGB::Green;
+    }
+    else{
+       leds[10] = CRGB::Black;
+    }
+    //Minute 42
+    if (timeClient.getSeconds() == 41){
+       leds[11] = CRGB::Green;
+    }
+    else{
+       leds[11] = CRGB::Black;
+    }
+    //Minute 43
+    if (timeClient.getSeconds() == 42){
+       leds[12] = CRGB::Green;
+    }
+    else{
+       leds[12] = CRGB::Black;
+    }
+    //Minute 43
+    if (timeClient.getSeconds() == 43){
+       leds[13] = CRGB::Green;
+    }
+    else{
+       leds[13] = CRGB::Black;
+    }
+    //Minute 44
+    if (timeClient.getSeconds() == 44){
+       leds[14] = CRGB::Green;
+    }
+    else{
+       leds[14] = CRGB::Black;
+    }
+    //Minute 45
+    if (timeClient.getSeconds() == 45){
+       leds[15] = CRGB::Green;
+    }
+    else{
+       leds[15] = CRGB::Black;
+    }
+    //Minute 46
+    if (timeClient.getSeconds() == 46){
+       leds[16] = CRGB::Green;
+    }
+    else{
+       leds[16] = CRGB::Black;
+    }
+    //Minute 47
+    if (timeClient.getSeconds() == 47){
+       leds[17] = CRGB::Green;
+    }
+    else{
+       leds[17] = CRGB::Black;
+    }
+    //Minute 48
+    if (timeClient.getSeconds() == 48){
+       leds[18] = CRGB::Green;
+    }
+    else{
+       leds[18] = CRGB::Black;
+    }
+    //Minute 49
+    if (timeClient.getSeconds() == 49){
+       leds[19] = CRGB::Green;
+    }
+    else{
+       leds[19] = CRGB::Black;
+    }
+    //Minute 50
+    if (timeClient.getSeconds() == 50){
+       leds[20] = CRGB::Green;
+    }
+    else{
+       leds[20] = CRGB::Black;
+    }
+    //Minute 51
+    if (timeClient.getSeconds() == 51){
+       leds[21] = CRGB::Green;
+    }
+    else{
+       leds[21] = CRGB::Black;
+    }
+    //Minute 52
+    if (timeClient.getSeconds() == 52){
+       leds[22] = CRGB::Green;
+    }
+    else{
+       leds[22] = CRGB::Black;
+    }
+    //Minute 53
+    if (timeClient.getSeconds() == 53){
+       leds[23] = CRGB::Green;
+    }
+    else{
+       leds[23] = CRGB::Black;
+    }
+    //Minute 54
+    if (timeClient.getSeconds() == 54){
+       leds[24] = CRGB::Green;
+    }
+    else{
+       leds[24] = CRGB::Black;
+    }
+    //Minute 55
+    if (timeClient.getSeconds() == 55){
+       leds[25] = CRGB::Green;
+    }
+    else{
+       leds[25] = CRGB::Black;
+    }
+    //Minute 56
+    if (timeClient.getSeconds() == 56){
+       leds[26] = CRGB::Green;
+    }
+    else{
+       leds[26] = CRGB::Black;
+    }
+    //Minute 57
+    if (timeClient.getSeconds() == 57){
+       leds[27] = CRGB::Green;
+    }
+    else{
+       leds[27] = CRGB::Black;
+    }
+    //Minute 58
+    if (timeClient.getSeconds() == 58){
+       leds[28] = CRGB::Green;
+    }
+    else{
+       leds[28] = CRGB::Black;
+    }
+    //Minute 59
+    if (timeClient.getSeconds() == 59){
+       leds[29] = CRGB::Green;
+    }
+    else{
+       leds[29] = CRGB::Black;
+    }
      //Minute 1
     if (timeClient.getMinutes() == 1){
        leds[30] = CRGB::Red;
@@ -608,7 +1026,10 @@ void loop()
     if (timeClient.getHours() == 23){
        leds[24] = CRGB::Blue;
     }
-    
+    leds[29] = CRGB::Yellow;
+    leds[59] = CRGB::Yellow;
+    leds[44] = CRGB::Yellow;
+    leds[14] = CRGB::Yellow;
     Serial.println(timeClient.getMinutes());
     
     //Minutes
