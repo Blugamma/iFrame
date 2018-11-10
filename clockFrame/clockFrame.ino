@@ -31,6 +31,8 @@ const int mqttPort = 80;
 uint8_t inc_payload[100]; // sting to store the incoming data from the publisher
 String curr_payload;
 uint8_t gHue = 0; // rotating "base color" used by many of the patterns
+unsigned long delayStart = 0; // the time the delay started
+bool delayRunning = false; // true if still waiting for delay to finish
 
 void setup() {
   Serial.begin(9600);
@@ -41,7 +43,7 @@ void setup() {
 
   // set master brightness control
   FastLED.setBrightness(BRIGHTNESS);
-
+  
   wifi_setup();
 
   client.setClient(espClient);
@@ -61,6 +63,8 @@ void setup() {
   client.publish("iFrame", "Hello ESP World");
   client.subscribe("iFrame");
   timeClient.begin();
+  delayStart = millis();   // start delay
+  delayRunning = true; // not finished yet
 }
 
 void flashRainbowLED(int timer) {
@@ -170,7 +174,7 @@ void loop()
       clearPayload();
     }
     //clearPayload();
-    timeClient.update();
+    
 
     if (curr_payload == timeClient.getFormattedTime()) {
       flashSolidLED(2000, CRGB::Red);
@@ -178,18 +182,22 @@ void loop()
       fill_solid(leds, NUM_LEDS, CRGB::Black);
       noTone(buzzer);
     }
-    //LED 5 =  6
-    //LED 9 =  7
-    //LED 13 = 8
-    //LED 17 = 9
-    //LED 21 = 10
-    //LED 25 = 11
-    //LED 29 = 12 
-    //LED 33 = 1
-    //LED 37 = 2
-    //LED 41 = 3
-    //LED 45 = 4
-    //LED 49 = 5
+    if (curr_payload == "sunny"){
+      for (int i = 0; i <= 11; i++){
+        leds[i] = CRGB::Red;
+      }
+    }
+    else{
+       for (int i = 0; i <= 11; i++){
+        leds[i] = CRGB::Black;
+      }
+    }
+    if (curr_payload == "clock"){
+        
+    
+    
+
+    timeClient.update();
     if (timeClient.getSeconds() == 1){
        leds[30] = CRGB::Green;
     }
@@ -1022,25 +1030,20 @@ void loop()
     else{
        leds[28] = CRGB::Black;
     }
-   
-    if (timeClient.getHours() == 23){
-       leds[24] = CRGB::Blue;
-    }
+
     leds[29] = CRGB::Yellow;
     leds[59] = CRGB::Yellow;
+   
+
     leds[44] = CRGB::Yellow;
     leds[14] = CRGB::Yellow;
-    Serial.println(timeClient.getMinutes());
-    
-    //Minutes
-//    for (int m = 1; m < 61; m++) {
-//      if (timeClient.getMinutes() == m){
-//        for (int ledNum = 0; ledNum < 60; ledNum++){
-//          leds[ledNum] = CRGB::Red;
-//          delay(2000);
-//        }
-//      }
+   
+//    if (timeClient.getHours() == 23){
+//       leds[24] = CRGB::Blue;
 //    }
+    }
+     
+    
     //Minute 1
     
    
