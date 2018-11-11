@@ -108,6 +108,8 @@ void clearPayload() {
   }
 }
 
+
+
 void loop() {
   if (!client.connected()) {
     long now = millis();
@@ -129,14 +131,14 @@ void loop() {
       for (int i = 0; i <= 11; i++) {
         leds[i] = CRGB::Orange;
         leds[i].fadeLightBy(brightness);
-    }
-    FastLED.show();
-    brightness = brightness + fadeAmount;
-    // reverse the direction of the fading at the ends of the fade:
-    if(brightness == 0 || brightness == 255){
-      fadeAmount = -fadeAmount ;
-    }   
-       delay(200);
+      }
+      FastLED.show();
+      brightness = brightness + fadeAmount;
+      // reverse the direction of the fading at the ends of the fade:
+      if (brightness == 0 || brightness == 255) {
+        fadeAmount = -fadeAmount ;
+      }
+      delay(20); //delay of the fade in and out
     }
     else {
       for (int i = 0; i <= 11; i++) {
@@ -148,6 +150,9 @@ void loop() {
     if (curr_payload == "rainy") {
       for (int i = 12; i <= 23; i++) {
         leds[i] = CRGB::Blue;
+        if ( random8() < 30) {
+          leds[ random(i) ] += CRGB::Blue;
+        }
       }
     }
     else {
@@ -188,6 +193,12 @@ void loop() {
     }
     else {
       for (int i = 48; i <= 59; i++) {
+        leds[i] = CRGB::Black;
+      }
+    }
+
+    if (curr_payload == "OFF") {
+      for (int i = 0; i <= 59; i++) {
         leds[i] = CRGB::Black;
       }
     }
