@@ -19,7 +19,8 @@ PubSubClient client(weatherFrame);
 CRGB leds[NUM_LEDS];
 #define BRIGHTNESS          96
 #define FRAMES_PER_SECOND  120
-
+#define COOLING  55
+#define SPARKING 120
 const char* ssid     = "OnePlus5";
 const char* password = "password123";
 const char* mqttServer = "broker.i-dat.org";
@@ -29,6 +30,7 @@ String curr_payload;
 uint8_t gHue = 0; // rotating "base color" used by many of the patterns
 int fadeAmount = 5;  // Set the amount to fade I usually do 5, 10, 15, 20, 25 etc even up to 255.
 int brightness = 0;
+
 
 void setup() {
   Serial.begin(9600);
@@ -108,8 +110,6 @@ void clearPayload() {
   }
 }
 
-
-
 void loop() {
   if (!client.connected()) {
     long now = millis();
@@ -148,12 +148,14 @@ void loop() {
 
     //Show the Rainy LEDS
     if (curr_payload == "rainy") {
-      for (int i = 12; i <= 23; i++) {
-        leds[i] = CRGB::Blue;
-        if ( random8() < 30) {
-          leds[ random(i) ] += CRGB::Blue;
-        }
-      }
+      //for (int i = 12; i <= 23; i++) {   
+      
+  int pos = random(12, 23);
+   //leds[pos].fadeToBlackBy(10);
+  leds[pos] = CRGB::Blue;
+  delay(1000);
+  leds[pos] = CRGB::Black;
+    //  }
     }
     else {
       for (int i = 12; i <= 23; i++) {
@@ -164,8 +166,9 @@ void loop() {
     //Show the Stormy LEDS
     if (curr_payload == "stormy") {
       for (int i = 24; i <= 35; i++) {
-        leds[i] = CRGB::Yellow;
-      }
+        //leds[i] = CRGB::Yellow;
+      
+    }
     }
     else {
       for (int i = 24; i <= 35; i++) {
