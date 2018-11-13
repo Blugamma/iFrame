@@ -18,13 +18,13 @@ PubSubClient client(weatherFrame);
 #define NUM_LEDS    60
 CRGB leds[NUM_LEDS];
 #define BRIGHTNESS          96
-#define FRAMES_PER_SECOND  120
+#define FRAMES_PER_SECOND  60
 #define COOLING  55
 #define SPARKING 120
 const char* ssid     = "OnePlus5";
 const char* password = "password123";
-const char* mqttServer = "broker.i-dat.org";
-const int mqttPort = 80;
+const char* mqttServer = "test.mosquitto.org";
+const int mqttPort = 1883;
 uint8_t inc_payload[100]; // sting to store the incoming data from the publisher
 String curr_payload;
 uint8_t gHue = 0; // rotating "base color" used by many of the patterns
@@ -33,6 +33,7 @@ int brightness = 0;
 
 
 void setup() {
+  delay( 3000 ); // power-up safety delay
   Serial.begin(9600);
   FastLED.addLeds<LED_TYPE, DATA_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
   // set master brightness control
@@ -54,18 +55,6 @@ void setup() {
   }
   client.publish("weatherFrame", "Hello Weather Frame");
   client.subscribe("weatherFrame");
-}
-
-long lastReconnectAttempt = 0;
-
-boolean reconnect() {
-  if (client.connect("weatherFrame")) {
-    // Once connected, publish an announcement...
-    client.publish("weatherFrame", "hello world");
-    // ... and resubscribe
-    client.subscribe("weatherFrame");
-  }
-  return client.connected();
 }
 
 void wifi_setup() {
@@ -109,18 +98,44 @@ void clearPayload() {
     inc_payload[r] = '\0'; // deletes each block
   }
 }
+void addDropEffect(CRGB dropColor, CRGB mainColor, int lowLED, int highLED){ 
+  int pos = random(lowLED, highLED);
+    leds[pos] = dropColor;
+    FastLED.show();
+    delay(100);
+    leds[pos] = mainColor;  
+    FastLED.show();
+    delay(random(100, 1000));
+}
+
+void reconnect() {
+  // Loop until we're reconnected
+  while (!client.connected()) {
+    Serial.print("Attempting MQTT connection...");
+    // Create a random client ID
+    String clientId = "weatherFrame";
+    clientId += String(random(0xffff), HEX);
+    // Attempt to connect
+    if (client.connect(clientId.c_str())) {
+      Serial.println("connected");
+      // Once connected, publish an announcement...
+      client.publish("weatherFrame", "reconnected to Weather Frame");
+      // ... and resubscribe
+      client.subscribe("weatherFrame");
+    } else {
+      Serial.print("failed, rc=");
+      Serial.print(client.state());
+      Serial.println(" try again in 5 seconds");
+      // Wait 5 seconds before retrying
+      delay(5000);
+    }
+  }
+}
 
 void loop() {
-  if (!client.connected()) {
-    long now = millis();
-    if (now - lastReconnectAttempt > 5000) {
-      lastReconnectAttempt = now;
-      // Attempt to reconnect
-      if (reconnect()) {
-        lastReconnectAttempt = 0;
-      }
+    if (!client.connected()) {
+      reconnect();
     }
-  } else {
     // Client connected
     client.loop();
     String curr_payload((char*)inc_payload); //convert to a string data type/////
@@ -148,14 +163,10 @@ void loop() {
 
     //Show the Rainy LEDS
     if (curr_payload == "rainy") {
-      //for (int i = 12; i <= 23; i++) {   
-      
-  int pos = random(12, 23);
-   //leds[pos].fadeToBlackBy(10);
-  leds[pos] = CRGB::Blue;
-  delay(1000);
-  leds[pos] = CRGB::Black;
-    //  }
+      for (int i = 12; i <= 23; i++) {   
+      leds[i] = CRGB::Blue;   
+      addDropEffect(CRGB::DeepSkyBlue, CRGB::Blue, 12, 23);
+      }
     }
     else {
       for (int i = 12; i <= 23; i++) {
@@ -166,7 +177,8 @@ void loop() {
     //Show the Stormy LEDS
     if (curr_payload == "stormy") {
       for (int i = 24; i <= 35; i++) {
-        //leds[i] = CRGB::Yellow;
+        leds[i] = CRGB::DimGray;  
+        addDropEffect(CRGB::Yellow, CRGB::DimGray, 24, 35);
       
     }
     }
@@ -192,6 +204,8 @@ void loop() {
     if (curr_payload == "snowy") {
       for (int i = 48; i <= 59; i++) {
         leds[i] = CRGB::Gray;
+        addDropEffect(CRGB::GhostWhite, CRGB::Gray, 48, 59);
+        
       }
     }
     else {
@@ -205,5 +219,4 @@ void loop() {
         leds[i] = CRGB::Black;
       }
     }
-  }
 }
