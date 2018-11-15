@@ -8,6 +8,7 @@
   "dependencies": {
     "bufferutil": "^3.0.3",
     "express": "4.16.2",
+    "googleapis": "^27.0.0",
     "http": "0.0.0",
     "mqtt": "^2.15.3",
     "socket.io": "^2.0.4",
