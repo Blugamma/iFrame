@@ -26,7 +26,7 @@ app.listen(port, () => {
 
 
 app.post('/signUp', function (req, res){
-    console.log(req.body1);
+    console.log(req.body);
     MongoClient.connect(url, function(err, db) {
         if (err) throw err;
         var dbo = db.db("iframe");
