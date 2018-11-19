@@ -142,7 +142,7 @@ void loop() {
     FastLED.show();
 
     //Show the Sunny LEDS
-    if (curr_payload == "sunny") {
+    if (curr_payload == "Clear") {
       for (int i = 0; i <= 11; i++) {
         leds[i] = CRGB::Orange;
         leds[i].fadeLightBy(brightness);

@@ -2,12 +2,11 @@
 const express = require('express');
 const bodyParser = require(`body-parser`);
 const app = express();
-const port = process.env.PORT || 5000;
+const port = 3000;
 const request = require('request');
 var path = require('path');
 var mqtt = require('mqtt');
-var MQTT_TOPIC = "iFrame";
-var MQTT_ADDR = "mqtt://broker.i-dat.org:80"; //Use the broker address here
+var MQTT_ADDR = "mqtt://test.mosquitto.org:1883"; //Use the broker address here
 var MQTT_PORT = 80; //And broker's port
 var MongoClient = require('mongodb').MongoClient;
 var url = "mongodb://admin:password123@ds249503.mlab.com:49503/iframe";
@@ -18,7 +17,7 @@ var sess;
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static('www/public'));
-app.use(session({secret: 'iFrameSecret'}));
+app.use(session({secret: 'iFrameSecretv2'}));
 
 app.listen(port, () => {
     console.log(`App is listening to ${port}`);
@@ -83,19 +82,39 @@ app.post('/weatherCheck', function (req, res) {
         MongoClient.connect(url, function(err, db) {
             if (err) throw err;
             var dbo = db.db("iframe");
-            var myobj = {
+            var weatherObj = {
                 dateTime: convertedDateTime,
                 currentWeather: weather,
                 weatherLocation: weatherPlace    
             };
-            dbo.collection("weather").insertOne(myobj, function(err, res) {
-            if (err) throw err;
-            console.log("1 user inserted");
-            db.close();
+            var col = dbo.collection("weather");
+            col.createIndex({ dateTime: 1 }, { unique: true });
+            col.insertOne(weatherObj, function(err, res) {
+                        if (err) throw err;
+                        console.log("1 weather object inserted");
+                        db.close();
+                    });
+                    //res.redirect('/weatherSending');
             });
+           
         });
     });
-});
+
+
+/* app.get('/weatherSending', function (req, res) {
+    dbo.collection("weather").findOne({}, function(err, result) {
+        var client  = mqtt.connect(MQTT_ADDR); //Create a new connection (use the MQTT adress)
+        client.on('connect', function() { //connect the MQTT client
+        client.subscribe('weatherFrame', { qos: 1 }); //Subscribe to the topic
+        var message = result.currentWeather;
+        client.publish('weatherFrame', message); //Puish the message of the client
+        console.log(message); //Print the results on the console (i.e. Terminal)
+        });  
+        db.close();    
+    });
+    res.sendFile(__dirname + '/www/weatherSendi.html');
+
+}); */
 
 app.post('/login', function (req, res) {
     sess = req.session;
@@ -117,7 +136,6 @@ app.post('/login', function (req, res) {
             else {
                 console.log("Credentials wrong");
             }
-          
         db.close();
         });
       });
