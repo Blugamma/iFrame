@@ -70,9 +70,10 @@ function convertTimestamp(timestamp) {
 app.get("/", (req, res) => {
     res.sendFile(__dirname + '/www/index.html');
 });
-
+var test = 0;
 app.post('/weatherCheck', function (req, res) {
     var location = req.body.location;
+    
     request('http://api.openweathermap.org/data/2.5/weather?q='+ location +'&appid=35d0cd20cdfd920305d90e2eb8dc5a93', { json: true }, (err, res, body) => {
         if (err) { return console.log(err); }
         var weather = body.weather[0].main;
@@ -87,17 +88,51 @@ app.post('/weatherCheck', function (req, res) {
                 currentWeather: weather,
                 weatherLocation: weatherPlace    
             };
+            
             var col = dbo.collection("weather");
-            col.createIndex({ dateTime: 1 }, { unique: true });
-            col.insertOne(weatherObj, function(err, res) {
-                        if (err) throw err;
-                        console.log("1 weather object inserted");
-                        db.close();
+            
+            col.findOne(weatherObj, function(err, result) {
+                if (err) throw err;
+                if (result == null){
+                    
+                    col.createIndex({ dateTime: 1, weatherLocation: 1  }, { unique: true });
+                    col.insertOne(weatherObj, function(err, result) {
+                                if (err) throw err;
+                                console.log("1 weather object inserted");
+                                db.close();
+                                test = 1;
                     });
-                    //res.redirect('/weatherSending');
+
+                }
+                else if (result.dateTime != convertedDateTime && result.weatherLocation != weatherPlace){
+                    col.createIndex({ dateTime: 1, weatherLocation: 1  }, { unique: true });
+                    col.insertOne(weatherObj, function(err, result) {
+                                if (err) throw err;
+                                console.log("1 weather object inserted");
+                                db.close();
+                                test = 1;
+                                next();
+
+                    });
+                }
+                else{
+                    console.log("dubplicated");
+                }
+            db.close();
             });
+            
+            
+            });
+
            
         });
+        if (test == 1){
+            res.redirect('/weatherSending');
+        }
+        else{
+            console.log("test" + test);
+        }
+        //
     });
 
 
