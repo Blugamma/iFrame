@@ -33,23 +33,22 @@ uint8_t gHue = 0; // rotating "base color" used by many of the patterns
 int fadeAmount = 5;  // Set the amount to fade I usually do 5, 10, 15, 20, 25 etc even up to 255.
 int brightness = 0;
 // defines pins numbers
-const int trigPin = 5;
-const int echoPin = 4;
+const int trigPin = 7;
+const int echoPin = 6;
 // defines variables
 long duration;
 int distance;
 
 
-
 void setup() {
-  delay( 3000 ); // power-up safety delay
-  pinMode(trigPin, OUTPUT); // Sets the trigPin as an Output
-  pinMode(echoPin, INPUT); // Sets the echoPin as an Input
+  //delay( 3000 ); // power-up safety delay
   Serial.begin(9600);
   FastLED.addLeds<LED_TYPE, DATA_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
   // set master brightness control
   FastLED.setBrightness(BRIGHTNESS);
   wifi_setup();
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
   client.setClient(weatherFrame);
   client.setServer(mqttServer, mqttPort);
   client.setCallback(callback);
@@ -65,7 +64,7 @@ void setup() {
     }
   }
   client.publish("weatherFrame", "Hello Weather Frame");
-  client.subscribe("weatherFrame");
+  client.subscribe("weatherFrame");  
 }
 
 void wifi_setup() {
@@ -93,7 +92,7 @@ void wifi_setup() {
     status = WiFi.begin(ssid, pass);
 
     // wait 10 seconds for connection:
-    delay(10000);
+    delay(5000);
   }
 
   // you're connected now, so print out the data:
@@ -214,27 +213,24 @@ void reconnect() {
 }
 
 void loop() {
-
     if (!client.connected()) {
       reconnect();
     }
-
-  digitalWrite(trigPin, LOW);
-delay(500);
+// Clears the trigPin
+digitalWrite(trigPin, LOW);
+delayMicroseconds(2);
 // Sets the trigPin on HIGH state for 10 micro seconds
 digitalWrite(trigPin, HIGH);
-delay(1000);
+delayMicroseconds(10);
 digitalWrite(trigPin, LOW);
 // Reads the echoPin, returns the sound wave travel time in microseconds
 duration = pulseIn(echoPin, HIGH);
 // Calculating the distance
 distance= duration*0.034/2;
 // Prints the distance on the Serial Monitor
-//Serial.print("Distance: ");
-//Serial.println(distance);
-    // Client connected
-    client.loop();
-   
+Serial.print("Distance: ");
+Serial.println(distance);
+        client.loop();
     String curr_payload((char*)inc_payload); //convert to a string data type/////
     FastLED.show();
 
@@ -259,7 +255,7 @@ distance= duration*0.034/2;
     }
 
     //Show the Rainy LEDS
-    if (curr_payload == "rainy" && distance <= 200) {
+    if (curr_payload == "rainy" && distance > 0 && distance <= 100) {
       for (int i = 12; i <= 23; i++) {   
       leds[i] = CRGB::Blue;   
       addDropEffect(CRGB::DeepSkyBlue, CRGB::Blue, 12, 23);
@@ -316,4 +312,7 @@ distance= duration*0.034/2;
         leds[i] = CRGB::Black;
       }
     }
+ 
+
+  
 }
