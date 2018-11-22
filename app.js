@@ -12,7 +12,7 @@ var MongoClient = require('mongodb').MongoClient;
 var url = "mongodb://admin:password123@ds249503.mlab.com:49503/iframe";
 var session = require('express-session');
 var sess;
-
+var weatherLocationSet = false;
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -67,14 +67,25 @@ function convertTimestamp(timestamp) {
       return time;
   }
 
+  
+    
+ 
 app.get("/", (req, res) => {
     res.sendFile(__dirname + '/www/index.html');
 });
-var test = 0;
+
 app.post('/weatherCheck', function (req, res) {
+    sess = req.session;
     var location = req.body.location;
-    
-    request('http://api.openweathermap.org/data/2.5/weather?q='+ location +'&appid=35d0cd20cdfd920305d90e2eb8dc5a93', { json: true }, (err, res, body) => {
+    sess.location = location;
+    console.log(sess.location);
+    weatherLocationSet = true;
+    });
+
+
+ setInterval(function(){
+    if (weatherLocationSet === true){
+    request('http://api.openweathermap.org/data/2.5/weather?q='+ sess.location + '&appid=35d0cd20cdfd920305d90e2eb8dc5a93', { json: true }, (err, res, body) => {
         if (err) { return console.log(err); }
         var weather = body.weather[0].main;
         var weatherPlace = body.name;
@@ -100,19 +111,15 @@ app.post('/weatherCheck', function (req, res) {
                                 if (err) throw err;
                                 console.log("1 weather object inserted");
                                 db.close();
-                                test = 1;
                     });
-
+  
                 }
                 else if (result.dateTime != convertedDateTime && result.weatherLocation != weatherPlace){
                     col.createIndex({ dateTime: 1, weatherLocation: 1  }, { unique: true });
                     col.insertOne(weatherObj, function(err, result) {
                                 if (err) throw err;
                                 console.log("1 weather object inserted");
-                                db.close();
-                                test = 1;
-                                next();
-
+                                db.close();  
                     });
                 }
                 else{
@@ -123,17 +130,8 @@ app.post('/weatherCheck', function (req, res) {
             
             
             });
-
-           
         });
-        if (test == 1){
-            res.redirect('/weatherSending');
-        }
-        else{
-            console.log("test" + test);
-        }
-        //
-    });
+    }},5000);
 
 
 /* app.get('/weatherSending', function (req, res) {
@@ -174,8 +172,9 @@ app.post('/login', function (req, res) {
         db.close();
         });
       });
-
-      app.get("/account-dashboard", (req, res) => {
+    
+    });
+    app.get("/account-dashboard", (req, res) => {
         sess = req.session;
         if (sess.email){
             res.sendFile(__dirname + '/www/account-dashboard.html');
@@ -197,4 +196,4 @@ app.post('/login', function (req, res) {
        // console.log(message); //Print the results on the console (i.e. Terminal)
    // });
    // res.sendFile(__dirname + '/www/confirmed.html');
-});
+
