@@ -90,12 +90,8 @@ app.post('/weatherCheck', function (req, res) {
     sess.location = location;
     console.log(sess.location);
     weatherLocationSet = true;
-<<<<<<< HEAD
     res.sendFile(__dirname + '/www/weatherSending.html');
 });
-=======
-    });
->>>>>>> 350791dd058be8389ffcd08a0f66b8d0d2f304cc
 
 
  setInterval(function(){
@@ -132,17 +128,12 @@ app.post('/weatherCheck', function (req, res) {
                                 });
                                 db.close();
                     });
-<<<<<<< HEAD
-=======
-  
->>>>>>> 350791dd058be8389ffcd08a0f66b8d0d2f304cc
                 }
                 else if (result.dateTime != convertedDateTime && result.weatherLocation != weatherPlace){
                     col.createIndex({ dateTime: 1, weatherLocation: 1  }, { unique: true });
                     col.insertOne(weatherObj, function(err, result) {
                                 if (err) throw err;
                                 console.log("1 weather object inserted");
-<<<<<<< HEAD
                                 var message = result.ops[0].currentWeather;
                                 var client  = mqtt.connect(MQTT_ADDR); //Create a new connection (use the MQTT adress)
                                 client.on('connect', function() { //connect the MQTT client
@@ -150,47 +141,16 @@ app.post('/weatherCheck', function (req, res) {
                                     client.publish('weatherFrame', message); //Puish the message of the client
                                     console.log(message); //Print the results on the console (i.e. Terminal)
                                 });
-=======
->>>>>>> 350791dd058be8389ffcd08a0f66b8d0d2f304cc
                                 db.close();  
                     });
                 }
                 else{
                     console.log("dubplicated");
                 }
-               
-                   
-                
-               
-               
             });
-<<<<<<< HEAD
         });
     });
 }},10000);
-=======
-            
-            
-            });
-        });
-    }},5000);
-
-
-/* app.get('/weatherSending', function (req, res) {
-    dbo.collection("weather").findOne({}, function(err, result) {
-        var client  = mqtt.connect(MQTT_ADDR); //Create a new connection (use the MQTT adress)
-        client.on('connect', function() { //connect the MQTT client
-        client.subscribe('weatherFrame', { qos: 1 }); //Subscribe to the topic
-        var message = result.currentWeather;
-        client.publish('weatherFrame', message); //Puish the message of the client
-        console.log(message); //Print the results on the console (i.e. Terminal)
-        });  
-        db.close();    
-    });
-    res.sendFile(__dirname + '/www/weatherSendi.html');
-
-}); */
->>>>>>> 350791dd058be8389ffcd08a0f66b8d0d2f304cc
 
 app.post('/login', function (req, res) {
     sess = req.session;
@@ -226,21 +186,5 @@ app.post('/login', function (req, res) {
             res.redirect('/');
         }
       });
-<<<<<<< HEAD
 
-=======
-    //var client  = mqtt.connect(MQTT_ADDR); //Create a new connection (use the MQTT adress)
-    
-    
-    //var timer = req.query.timer;
-    //console.log(username);
-    //console.log(password);
-    //client.on('connect', function() { //connect the MQTT client
-       // client.subscribe(MQTT_TOPIC, { qos: 1 }); //Subscribe to the topic
-        //var message = timer;
-       // client.publish(MQTT_TOPIC, message); //Puish the message of the client
-       // console.log(message); //Print the results on the console (i.e. Terminal)
-   // });
-   // res.sendFile(__dirname + '/www/confirmed.html');
->>>>>>> 350791dd058be8389ffcd08a0f66b8d0d2f304cc
 
