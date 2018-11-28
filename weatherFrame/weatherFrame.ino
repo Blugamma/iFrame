@@ -64,7 +64,7 @@ void setup() {
     }
   }
   client.publish("weatherFrame", "Hello Weather Frame");
-  client.subscribe("weatherFrame");  
+  client.subscribe("weatherFrame");
 }
 
 void wifi_setup() {
@@ -178,14 +178,14 @@ void clearPayload() {
     inc_payload[r] = '\0'; // deletes each block
   }
 }
-void addDropEffect(CRGB dropColor, CRGB mainColor, int lowLED, int highLED){ 
+void addDropEffect(CRGB dropColor, CRGB mainColor, int lowLED, int highLED) {
   int pos = random(lowLED, highLED);
-    leds[pos] = dropColor;
-    FastLED.show();
-    delay(100);
-    leds[pos] = mainColor;  
-    FastLED.show();
-    delay(random(100, 1000));
+  leds[pos] = dropColor;
+  FastLED.show();
+  delay(100);
+  leds[pos] = mainColor;
+  FastLED.show();
+  delay(random(100, 1000));
 }
 
 void reconnect() {
@@ -213,127 +213,107 @@ void reconnect() {
 }
 
 void loop() {
-    if (!client.connected()) {
-      reconnect();
+  if (!client.connected()) {
+    reconnect();
+  }
+  // Clears the trigPin
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  // Sets the trigPin on HIGH state for 10 micro seconds
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+  // Reads the echoPin, returns the sound wave travel time in microseconds
+  duration = pulseIn(echoPin, HIGH);
+  // Calculating the distance
+  distance = duration * 0.034 / 2;
+  // Prints the distance on the Serial Monitor
+  Serial.print("Distance: ");
+  Serial.println(distance);
+
+  client.loop();
+  String curr_payload((char*)inc_payload); //convert to a string data type/////
+  FastLED.show();
+
+  //Show the Sunny LEDS
+  if (curr_payload == "Clear" && distance > 0 && distance <= 100) {
+    for (int i = 0; i <= 11; i++) {
+      leds[i] = CRGB::Orange;
+      leds[i].fadeLightBy(brightness);
     }
-<<<<<<< HEAD
-    // Clears the trigPin
-    digitalWrite(trigPin, LOW);
-    delayMicroseconds(2);
-    // Sets the trigPin on HIGH state for 10 micro seconds
-    digitalWrite(trigPin, HIGH);
-    delayMicroseconds(10);
-    digitalWrite(trigPin, LOW);
-    // Reads the echoPin, returns the sound wave travel time in microseconds
-    duration = pulseIn(echoPin, HIGH);
-    // Calculating the distance
-    distance= duration*0.034/2;
-    // Prints the distance on the Serial Monitor
-    Serial.print("Distance: ");
-    Serial.println(distance);
-=======
-// Clears the trigPin
-digitalWrite(trigPin, LOW);
-delayMicroseconds(2);
-// Sets the trigPin on HIGH state for 10 micro seconds
-digitalWrite(trigPin, HIGH);
-delayMicroseconds(10);
-digitalWrite(trigPin, LOW);
-// Reads the echoPin, returns the sound wave travel time in microseconds
-duration = pulseIn(echoPin, HIGH);
-// Calculating the distance
-distance= duration*0.034/2;
-// Prints the distance on the Serial Monitor
-Serial.print("Distance: ");
-Serial.println(distance);
->>>>>>> 350791dd058be8389ffcd08a0f66b8d0d2f304cc
-        client.loop();
-    String curr_payload((char*)inc_payload); //convert to a string data type/////
     FastLED.show();
-
-    //Show the Sunny LEDS
-    if (curr_payload == "Clear" && distance > 0 && distance <= 100) {
-      for (int i = 0; i <= 11; i++) {
-        leds[i] = CRGB::Orange;
-        leds[i].fadeLightBy(brightness);
-      }
-      FastLED.show();
-      brightness = brightness + fadeAmount;
-      // reverse the direction of the fading at the ends of the fade:
-      if (brightness == 0 || brightness == 255) {
-        fadeAmount = -fadeAmount ;
-      }
-      delay(20); //delay of the fade in and out
+    brightness = brightness + fadeAmount;
+    // reverse the direction of the fading at the ends of the fade:
+    if (brightness == 0 || brightness == 255) {
+      fadeAmount = -fadeAmount ;
     }
-    else {
-      for (int i = 0; i <= 11; i++) {
-        leds[i] = CRGB::Black;
-      }
+    delay(20); //delay of the fade in and out
+  }
+  else {
+    for (int i = 0; i <= 11; i++) {
+      leds[i] = CRGB::Black;
     }
+  }
 
-    //Show the Rainy LEDS
-<<<<<<< HEAD
-    if (curr_payload == "Rain" && distance > 0 && distance <= 100) {
-=======
-    if (curr_payload == "rainy" && distance > 0 && distance <= 100) {
->>>>>>> 350791dd058be8389ffcd08a0f66b8d0d2f304cc
-      for (int i = 12; i <= 23; i++) {   
-      leds[i] = CRGB::Blue;   
+  //Show the Rainy LEDS
+  if (curr_payload == "Rain" && distance > 0 && distance <= 100) {
+    for (int i = 12; i <= 23; i++) {
+      leds[i] = CRGB::Blue;
       addDropEffect(CRGB::DeepSkyBlue, CRGB::Blue, 12, 23);
-      }
     }
-    else {
-      for (int i = 12; i <= 23; i++) {
-        leds[i] = CRGB::Black;
-      }
+  }
+  else {
+    for (int i = 12; i <= 23; i++) {
+      leds[i] = CRGB::Black;
     }
+  }
 
-    //Show the Stormy LEDS
-    if (curr_payload == "Thunderstorm" && distance > 0 && distance <= 100) {
-      for (int i = 24; i <= 35; i++) {
-        leds[i] = CRGB::DimGray;  
-        addDropEffect(CRGB::Yellow, CRGB::DimGray, 24, 35);
-      
-    }
-    }
-    else {
-      for (int i = 24; i <= 35; i++) {
-        leds[i] = CRGB::Black;
-      }
-    }
+  //Show the Stormy LEDS
+  if (curr_payload == "Thunderstorm" && distance > 0 && distance <= 100) {
+    for (int i = 24; i <= 35; i++) {
+      leds[i] = CRGB::DimGray;
+      addDropEffect(CRGB::Yellow, CRGB::DimGray, 24, 35);
 
-    //Show the Cloudy LEDS
-    if (curr_payload == "Clouds" || curr_payload == "Atmosphere" && distance > 0 && distance <= 100) {
-      for (int i = 36; i <= 47; i++) {
-        leds[i] = CRGB::Green;
-      }
     }
-    else {
-      for (int i = 36; i <= 47; i++) {
-        leds[i] = CRGB::Black;
-      }
+  }
+  else {
+    for (int i = 24; i <= 35; i++) {
+      leds[i] = CRGB::Black;
     }
+  }
 
-    //Show the Snowy LEDS
-    if (curr_payload == "Snow" && distance > 0 && distance <= 100) {
-      for (int i = 48; i <= 59; i++) {
-        leds[i] = CRGB::Gray;
-        addDropEffect(CRGB::GhostWhite, CRGB::Gray, 48, 59);
-        
-      }
+  //Show the Cloudy LEDS
+  if (curr_payload == "Clouds" || curr_payload == "Atmosphere" && distance > 0 && distance <= 100) {
+    for (int i = 36; i <= 47; i++) {
+      leds[i] = CRGB::Green;
     }
-    else {
-      for (int i = 48; i <= 59; i++) {
-        leds[i] = CRGB::Black;
-      }
+  }
+  else {
+    for (int i = 36; i <= 47; i++) {
+      leds[i] = CRGB::Black;
     }
+  }
 
-    if (curr_payload == "OFF") {
-      for (int i = 0; i <= 59; i++) {
-        leds[i] = CRGB::Black;
-      }
-    }
- 
+  //Show the Snowy LEDS
+  if (curr_payload == "Snow" && distance > 0 && distance <= 100) {
+    for (int i = 48; i <= 59; i++) {
+      leds[i] = CRGB::Gray;
+      addDropEffect(CRGB::GhostWhite, CRGB::Gray, 48, 59);
 
-  
+    }
+  }
+  else {
+    for (int i = 48; i <= 59; i++) {
+      leds[i] = CRGB::Black;
+    }
+  }
+
+  if (curr_payload == "OFF") {
+    for (int i = 0; i <= 59; i++) {
+      leds[i] = CRGB::Black;
+    }
+  }
+
+
+
 }
