@@ -216,6 +216,7 @@ void loop() {
     if (!client.connected()) {
       reconnect();
     }
+<<<<<<< HEAD
     // Clears the trigPin
     digitalWrite(trigPin, LOW);
     delayMicroseconds(2);
@@ -230,6 +231,22 @@ void loop() {
     // Prints the distance on the Serial Monitor
     Serial.print("Distance: ");
     Serial.println(distance);
+=======
+// Clears the trigPin
+digitalWrite(trigPin, LOW);
+delayMicroseconds(2);
+// Sets the trigPin on HIGH state for 10 micro seconds
+digitalWrite(trigPin, HIGH);
+delayMicroseconds(10);
+digitalWrite(trigPin, LOW);
+// Reads the echoPin, returns the sound wave travel time in microseconds
+duration = pulseIn(echoPin, HIGH);
+// Calculating the distance
+distance= duration*0.034/2;
+// Prints the distance on the Serial Monitor
+Serial.print("Distance: ");
+Serial.println(distance);
+>>>>>>> 350791dd058be8389ffcd08a0f66b8d0d2f304cc
         client.loop();
     String curr_payload((char*)inc_payload); //convert to a string data type/////
     FastLED.show();
@@ -255,7 +272,11 @@ void loop() {
     }
 
     //Show the Rainy LEDS
+<<<<<<< HEAD
     if (curr_payload == "Rain" && distance > 0 && distance <= 100) {
+=======
+    if (curr_payload == "rainy" && distance > 0 && distance <= 100) {
+>>>>>>> 350791dd058be8389ffcd08a0f66b8d0d2f304cc
       for (int i = 12; i <= 23; i++) {   
       leds[i] = CRGB::Blue;   
       addDropEffect(CRGB::DeepSkyBlue, CRGB::Blue, 12, 23);
