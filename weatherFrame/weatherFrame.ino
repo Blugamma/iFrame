@@ -1,5 +1,6 @@
 #include <FastLED.h>
-#include <ESP8266WiFi.h>
+#include <SPI.h>
+#include <WiFi.h>
 #include <PubSubClient.h>
 FASTLED_USING_NAMESPACE
 
@@ -21,8 +22,9 @@ CRGB leds[NUM_LEDS];
 #define FRAMES_PER_SECOND  60
 #define COOLING  55
 #define SPARKING 120
-const char* ssid     = "OnePlus5";
-const char* password = "password123";
+char ssid[] = "OnePlus5";     //  your network SSID (name)
+char pass[] = "password123";  // your network password
+int status = WL_IDLE_STATUS;     // the Wifi radio's status
 const char* mqttServer = "test.mosquitto.org";
 const int mqttPort = 1883;
 uint8_t inc_payload[100]; // sting to store the incoming data from the publisher
@@ -30,15 +32,23 @@ String curr_payload;
 uint8_t gHue = 0; // rotating "base color" used by many of the patterns
 int fadeAmount = 5;  // Set the amount to fade I usually do 5, 10, 15, 20, 25 etc even up to 255.
 int brightness = 0;
+// defines pins numbers
+const int trigPin = 7;
+const int echoPin = 6;
+// defines variables
+long duration;
+int distance;
 
 
 void setup() {
-  delay( 3000 ); // power-up safety delay
+  //delay( 3000 ); // power-up safety delay
   Serial.begin(9600);
   FastLED.addLeds<LED_TYPE, DATA_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
   // set master brightness control
   FastLED.setBrightness(BRIGHTNESS);
   wifi_setup();
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
   client.setClient(weatherFrame);
   client.setServer(mqttServer, mqttPort);
   client.setCallback(callback);
@@ -54,30 +64,100 @@ void setup() {
     }
   }
   client.publish("weatherFrame", "Hello Weather Frame");
-  client.subscribe("weatherFrame");
+  client.subscribe("weatherFrame");  
 }
 
 void wifi_setup() {
-  Serial.println();
-  Serial.println();
-  Serial.print("Connecting to ");
-  Serial.println(ssid);
-
-  /* Explicitly set the ESP8266 to be a WiFi-client, otherwise, it by default,
-     would try to act as both a client and an access-point and could cause
-     network-issues with your other WiFi-devices on your WiFi-network. */
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(ssid, password);
-
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
+  while (!Serial) {
+    ; // wait for serial port to connect. Needed for native USB port only
   }
 
-  Serial.println("");
-  Serial.println("WiFi connected");
-  Serial.println("IP address: ");
-  Serial.println(WiFi.localIP());
+  // check for the presence of the shield:
+  if (WiFi.status() == WL_NO_SHIELD) {
+    Serial.println("WiFi shield not present");
+    // don't continue:
+    while (true);
+  }
+
+  String fv = WiFi.firmwareVersion();
+  if (fv != "1.1.0") {
+    Serial.println("Please upgrade the firmware");
+  }
+
+  // attempt to connect to Wifi network:
+  while (status != WL_CONNECTED) {
+    Serial.print("Attempting to connect to WPA SSID: ");
+    Serial.println(ssid);
+    // Connect to WPA/WPA2 network:
+    status = WiFi.begin(ssid, pass);
+
+    // wait 10 seconds for connection:
+    delay(5000);
+  }
+
+  // you're connected now, so print out the data:
+  Serial.print("You're connected to the network");
+  printCurrentNet();
+  printWifiData();
+}
+
+
+void printWifiData() {
+  // print your WiFi shield's IP address:
+  IPAddress ip = WiFi.localIP();
+  Serial.print("IP Address: ");
+  Serial.println(ip);
+  Serial.println(ip);
+
+  // print your MAC address:
+  byte mac[6];
+  WiFi.macAddress(mac);
+  Serial.print("MAC address: ");
+  Serial.print(mac[5], HEX);
+  Serial.print(":");
+  Serial.print(mac[4], HEX);
+  Serial.print(":");
+  Serial.print(mac[3], HEX);
+  Serial.print(":");
+  Serial.print(mac[2], HEX);
+  Serial.print(":");
+  Serial.print(mac[1], HEX);
+  Serial.print(":");
+  Serial.println(mac[0], HEX);
+
+}
+
+void printCurrentNet() {
+  // print the SSID of the network you're attached to:
+  Serial.print("SSID: ");
+  Serial.println(WiFi.SSID());
+
+  // print the MAC address of the router you're attached to:
+  byte bssid[6];
+  WiFi.BSSID(bssid);
+  Serial.print("BSSID: ");
+  Serial.print(bssid[5], HEX);
+  Serial.print(":");
+  Serial.print(bssid[4], HEX);
+  Serial.print(":");
+  Serial.print(bssid[3], HEX);
+  Serial.print(":");
+  Serial.print(bssid[2], HEX);
+  Serial.print(":");
+  Serial.print(bssid[1], HEX);
+  Serial.print(":");
+  Serial.println(bssid[0], HEX);
+
+  // print the received signal strength:
+  long rssi = WiFi.RSSI();
+  Serial.print("signal strength (RSSI):");
+  Serial.println(rssi);
+
+  // print the encryption type:
+  byte encryption = WiFi.encryptionType();
+  Serial.print("Encryption Type:");
+  Serial.println(encryption, HEX);
+  Serial.println();
 }
 
 void callback(char* topic, byte* payload, unsigned int length) {
@@ -136,13 +216,26 @@ void loop() {
     if (!client.connected()) {
       reconnect();
     }
-    // Client connected
-    client.loop();
+    // Clears the trigPin
+    digitalWrite(trigPin, LOW);
+    delayMicroseconds(2);
+    // Sets the trigPin on HIGH state for 10 micro seconds
+    digitalWrite(trigPin, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(trigPin, LOW);
+    // Reads the echoPin, returns the sound wave travel time in microseconds
+    duration = pulseIn(echoPin, HIGH);
+    // Calculating the distance
+    distance= duration*0.034/2;
+    // Prints the distance on the Serial Monitor
+    Serial.print("Distance: ");
+    Serial.println(distance);
+        client.loop();
     String curr_payload((char*)inc_payload); //convert to a string data type/////
     FastLED.show();
 
     //Show the Sunny LEDS
-    if (curr_payload == "Clear") {
+    if (curr_payload == "Clear" && distance > 0 && distance <= 100) {
       for (int i = 0; i <= 11; i++) {
         leds[i] = CRGB::Orange;
         leds[i].fadeLightBy(brightness);
@@ -162,7 +255,7 @@ void loop() {
     }
 
     //Show the Rainy LEDS
-    if (curr_payload == "rainy") {
+    if (curr_payload == "Rain" && distance > 0 && distance <= 100) {
       for (int i = 12; i <= 23; i++) {   
       leds[i] = CRGB::Blue;   
       addDropEffect(CRGB::DeepSkyBlue, CRGB::Blue, 12, 23);
@@ -175,7 +268,7 @@ void loop() {
     }
 
     //Show the Stormy LEDS
-    if (curr_payload == "stormy") {
+    if (curr_payload == "Thunderstorm" && distance > 0 && distance <= 100) {
       for (int i = 24; i <= 35; i++) {
         leds[i] = CRGB::DimGray;  
         addDropEffect(CRGB::Yellow, CRGB::DimGray, 24, 35);
@@ -188,8 +281,8 @@ void loop() {
       }
     }
 
-    //Show the Overcast LEDS
-    if (curr_payload == "overcast") {
+    //Show the Cloudy LEDS
+    if (curr_payload == "Clouds" || curr_payload == "Atmosphere" && distance > 0 && distance <= 100) {
       for (int i = 36; i <= 47; i++) {
         leds[i] = CRGB::Green;
       }
@@ -201,7 +294,7 @@ void loop() {
     }
 
     //Show the Snowy LEDS
-    if (curr_payload == "snowy") {
+    if (curr_payload == "Snow" && distance > 0 && distance <= 100) {
       for (int i = 48; i <= 59; i++) {
         leds[i] = CRGB::Gray;
         addDropEffect(CRGB::GhostWhite, CRGB::Gray, 48, 59);
@@ -219,4 +312,7 @@ void loop() {
         leds[i] = CRGB::Black;
       }
     }
+ 
+
+  
 }
