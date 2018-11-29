@@ -283,7 +283,7 @@ void loop() {
   }
 
   //Show the Cloudy LEDS
-  if (curr_payload == "Clouds" || curr_payload == "Atmosphere" && distance > 0 && distance <= 100) {
+  if (curr_payload == "Clouds" && distance > 0 && distance <= 100) {
     for (int i = 36; i <= 47; i++) {
       leds[i] = CRGB::Green;
     }
