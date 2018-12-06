@@ -13,7 +13,8 @@ var url = "mongodb://admin:password123@ds249503.mlab.com:49503/iframe";
 var session = require('express-session');
 var sess;
 var weatherLocationSet = false;
-
+var tempSet = false;
+var weatherSet = false;
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static('www/public'));
@@ -90,6 +91,17 @@ app.post('/weatherCheck', function (req, res) {
     sess.location = location;
     console.log(sess.location);
     weatherLocationSet = true;
+    weatherSet = true;
+    res.sendFile(__dirname + '/www/weatherSending.html');
+});
+
+app.post('/tempCheck', function (req, res) {
+    sess = req.session;
+    var location = req.body.location;
+    sess.location = location;
+    console.log(sess.location);
+    weatherLocationSet = true;
+    tempSet = true;
     res.sendFile(__dirname + '/www/weatherSending.html');
 });
 
@@ -102,13 +114,15 @@ app.post('/weatherCheck', function (req, res) {
         var weatherPlace = body.name;
         var dateTime = body.dt;
         var convertedDateTime = convertTimestamp(dateTime);
+        var temp = body.main.temp.toString();
         MongoClient.connect(url, function(err, db) {
             if (err) throw err;
             var dbo = db.db("iframe");
             var weatherObj = {
                 dateTime: convertedDateTime,
                 currentWeather: weather,
-                weatherLocation: weatherPlace    
+                weatherLocation: weatherPlace,
+                temperature: temp  
             };
             
             var col = dbo.collection("weather");
@@ -119,13 +133,24 @@ app.post('/weatherCheck', function (req, res) {
                     col.insertOne(weatherObj, function(err, result) {
                                 if (err) throw err;
                                 console.log("1 weather object inserted");
-                                var message = result.ops[0].currentWeather;
-                                var client  = mqtt.connect(MQTT_ADDR); //Create a new connection (use the MQTT adress)
-                                client.on('connect', function() { //connect the MQTT client
-                                    client.subscribe('weatherFrame', { qos: 1 }); //Subscribe to the topic
-                                    client.publish('weatherFrame', message); //Puish the message of the client
-                                    console.log(message); //Print the results on the console (i.e. Terminal)
-                                });
+                                if (tempSet === true){
+                                    var message = result.ops[0].temperature;
+                                    var client  = mqtt.connect(MQTT_ADDR); //Create a new connection (use the MQTT adress)
+                                    client.on('connect', function() { //connect the MQTT client
+                                        client.subscribe('weatherFrame', { qos: 1 }); //Subscribe to the topic
+                                        client.publish('weatherFrame', message); //Puish the message of the client
+                                        console.log(message); //Print the results on the console (i.e. Terminal)
+                                    });
+                                }
+                                else if (weatherSet === true){
+                                    var message = result.ops[0].currentWeather;
+                                    var client  = mqtt.connect(MQTT_ADDR); //Create a new connection (use the MQTT adress)
+                                    client.on('connect', function() { //connect the MQTT client
+                                        client.subscribe('weatherFrame', { qos: 1 }); //Subscribe to the topic
+                                        client.publish('weatherFrame', message); //Puish the message of the client
+                                        console.log(message); //Print the results on the console (i.e. Terminal)
+                                    });
+                                }
                                 db.close();
                     });
                 }
@@ -134,18 +159,48 @@ app.post('/weatherCheck', function (req, res) {
                     col.insertOne(weatherObj, function(err, result) {
                                 if (err) throw err;
                                 console.log("1 weather object inserted");
-                                var message = result.ops[0].currentWeather;
-                                var client  = mqtt.connect(MQTT_ADDR); //Create a new connection (use the MQTT adress)
-                                client.on('connect', function() { //connect the MQTT client
-                                    client.subscribe('weatherFrame', { qos: 1 }); //Subscribe to the topic
-                                    client.publish('weatherFrame', message); //Puish the message of the client
-                                    console.log(message); //Print the results on the console (i.e. Terminal)
-                                });
+                                if (tempSet === true){
+                                    var message = result.ops[0].temperature;
+                                    var client  = mqtt.connect(MQTT_ADDR); //Create a new connection (use the MQTT adress)
+                                    client.on('connect', function() { //connect the MQTT client
+                                        client.subscribe('weatherFrame', { qos: 1 }); //Subscribe to the topic
+                                        client.publish('weatherFrame', message); //Puish the message of the client
+                                        console.log(message); //Print the results on the console (i.e. Terminal)
+                                    });
+                                }
+                                else if (weatherSet === true){
+                                    var message = result.ops[0].currentWeather;
+                                    var client  = mqtt.connect(MQTT_ADDR); //Create a new connection (use the MQTT adress)
+                                    client.on('connect', function() { //connect the MQTT client
+                                        client.subscribe('weatherFrame', { qos: 1 }); //Subscribe to the topic
+                                        client.publish('weatherFrame', message); //Puish the message of the client
+                                        console.log(message); //Print the results on the console (i.e. Terminal)
+                                    });
+                                }
                                 db.close();  
                     });
                 }
                 else{
                     console.log("dubplicated");
+                    //console.log(result);
+                    if (tempSet === true){
+                        var message = result.temperature;
+                        var client  = mqtt.connect(MQTT_ADDR); //Create a new connection (use the MQTT adress)
+                        client.on('connect', function() { //connect the MQTT client
+                            client.subscribe('weatherFrame', { qos: 1 }); //Subscribe to the topic
+                            client.publish('weatherFrame', message); //Puish the message of the client
+                            console.log(message); //Print the results on the console (i.e. Terminal)
+                        });
+                    }
+                    else if (weatherSet === true){
+                        var message = result.currentWeather;
+                        var client  = mqtt.connect(MQTT_ADDR); //Create a new connection (use the MQTT adress)
+                        client.on('connect', function() { //connect the MQTT client
+                            client.subscribe('weatherFrame', { qos: 1 }); //Subscribe to the topic
+                            client.publish('weatherFrame', message); //Puish the message of the client
+                            console.log(message); //Print the results on the console (i.e. Terminal)
+                        });
+                    }
                 }
             });
         });

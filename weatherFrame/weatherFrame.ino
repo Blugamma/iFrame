@@ -13,7 +13,6 @@ WiFiClient weatherFrame;
 PubSubClient client(weatherFrame);
 
 #define DATA_PIN    3
-//#define CLK_PIN   4
 #define LED_TYPE    WS2812B
 #define COLOR_ORDER GRB
 #define NUM_LEDS    60
@@ -35,13 +34,12 @@ int brightness = 0;
 // defines pins numbers
 const int trigPin = 7;
 const int echoPin = 6;
-// defines variables
 long duration;
 int distance;
-
+uint32_t period = 1 * 60000L;
 
 void setup() {
-  //delay( 3000 ); // power-up safety delay
+  delay( 3000 ); // power-up safety delay
   Serial.begin(9600);
   FastLED.addLeds<LED_TYPE, DATA_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
   // set master brightness control
@@ -65,6 +63,7 @@ void setup() {
   }
   client.publish("weatherFrame", "Hello Weather Frame");
   client.subscribe("weatherFrame");
+
 }
 
 void wifi_setup() {
@@ -92,7 +91,7 @@ void wifi_setup() {
     status = WiFi.begin(ssid, pass);
 
     // wait 10 seconds for connection:
-    delay(5000);
+    delay(2000);
   }
 
   // you're connected now, so print out the data:
@@ -178,15 +177,6 @@ void clearPayload() {
     inc_payload[r] = '\0'; // deletes each block
   }
 }
-void addDropEffect(CRGB dropColor, CRGB mainColor, int lowLED, int highLED) {
-  int pos = random(lowLED, highLED);
-  leds[pos] = dropColor;
-  FastLED.show();
-  delay(100);
-  leds[pos] = mainColor;
-  FastLED.show();
-  delay(random(100, 1000));
-}
 
 void reconnect() {
   // Loop until we're reconnected
@@ -205,49 +195,153 @@ void reconnect() {
     } else {
       Serial.print("failed, rc=");
       Serial.print(client.state());
-      Serial.println(" try again in 5 seconds");
+      Serial.println(" try again in 2 seconds");
       // Wait 5 seconds before retrying
-      delay(5000);
+      delay(2000);
     }
   }
 }
+
+void addDrizzleEffect(CRGB dropColor, CRGB mainColor, int lowLED, int highLED) {
+  int pos = random(lowLED, highLED);
+  leds[pos] = dropColor;
+  FastLED.show();
+  delay(100);
+  leds[pos] = mainColor;
+  FastLED.show();
+  delay(random(100, 1000));
+}
+
+void addRainEffect(CRGB dropColor, CRGB mainColor, int lowLED, int highLED) {
+  int pos = random(lowLED, highLED);
+  leds[pos] = dropColor;
+  FastLED.show();
+  delay(100);
+  leds[pos] = mainColor;
+  FastLED.show();
+  delay(100);
+}
+
 
 void loop() {
   if (!client.connected()) {
     reconnect();
   }
-  // Clears the trigPin
+
+  //Clears the trigPin
   digitalWrite(trigPin, LOW);
   delayMicroseconds(2);
-  // Sets the trigPin on HIGH state for 10 micro seconds
+  //Sets the trigPin on HIGH state for 10 micro seconds
   digitalWrite(trigPin, HIGH);
   delayMicroseconds(10);
   digitalWrite(trigPin, LOW);
-  // Reads the echoPin, returns the sound wave travel time in microseconds
+  //Reads the echoPin, returns the sound wave travel time in microseconds
   duration = pulseIn(echoPin, HIGH);
-  // Calculating the distance
+  //Calculating the distance
   distance = duration * 0.034 / 2;
-  // Prints the distance on the Serial Monitor
+  //Prints the distance on the Serial Monitor
   Serial.print("Distance: ");
   Serial.println(distance);
 
   client.loop();
-  String curr_payload((char*)inc_payload); //convert to a string data type/////
-  FastLED.show();
+  String curr_payload((char*)inc_payload); //convert to a string data type//
 
+
+  FastLED.show();
+  //curr_payload = "308.15";
+  int curr_payload_int = curr_payload.toInt() - 273.15; //calculate celsius from the Kelvin value
+
+  //Very Cold
+  if (curr_payload_int <= 10 && distance > 5 && distance <= 100) {
+    for ( uint32_t tStart = millis();  (millis() - tStart) < period;  ) { /*This for loop is used to run the LEDs for exactly a minute*/
+      for (int i = 0; i <= 9; i++) {
+        leds[i] = CRGB::Purple;
+        FastLED.show();
+        delay(100);
+      }
+    }
+  }
+  else {
+    for (int i = 0; i <= 59; i++) {
+      leds[i] = CRGB::Black;
+    }
+  }
+  //Cold
+  if (curr_payload_int > 10 && curr_payload_int <= 15 && distance > 5 && distance <= 100) {
+    for ( uint32_t tStart = millis();  (millis() - tStart) < period;  ) { /*This for loop is used to run the LEDs for exactly a minute*/
+      for (int i = 0; i <= 21; i++) {
+        leds[i] = CRGB::Blue;
+        FastLED.show();
+        delay(100);
+      }
+    }
+  }
+  else {
+    for (int i = 0; i <= 59; i++) {
+      leds[i] = CRGB::Black;
+    }
+  }
+  //Warm
+  if (curr_payload_int > 15 && curr_payload_int <= 20 && distance > 5 && distance <= 100) {
+    for ( uint32_t tStart = millis();  (millis() - tStart) < period;  ) { /*This for loop is used to run the LEDs for exactly a minute*/
+      for (int i = 0; i <= 33; i++) {
+        leds[i] = CRGB::Yellow;
+        FastLED.show();
+        delay(100);
+      }
+    }
+  }
+  else {
+    for (int i = 0; i <= 59; i++) {
+      leds[i] = CRGB::Black;
+    }
+  }
+  //Hot
+  if (curr_payload_int > 20 && curr_payload_int <= 25 && distance > 5 && distance <= 100) {
+    for ( uint32_t tStart = millis();  (millis() - tStart) < period;  ) { /*This for loop is used to run the LEDs for exactly a minute*/
+      for (int i = 0; i <= 46; i++) {
+        leds[i] = CRGB::Orange;
+        FastLED.show();
+        delay(100);
+      }
+    }
+  }
+  else {
+    for (int i = 0; i <= 59; i++) {
+      leds[i] = CRGB::Black;
+    }
+  }
+
+  //Very Hot
+  if (curr_payload_int > 25 && curr_payload_int <= 35 && distance > 5 && distance <= 100) {
+    for ( uint32_t tStart = millis();  (millis() - tStart) < period;  ) { /*This for loop is used to run the LEDs for exactly a minute*/
+      for (int i = 0; i <= 59; i++) {
+        leds[i] = CRGB::Red;
+        FastLED.show();
+        delay(100);
+      }
+    }
+  }
+  else {
+    for (int i = 0; i <= 59; i++) {
+      leds[i] = CRGB::Black;
+    }
+  }
   //Show the Sunny LEDS
-  if (curr_payload == "Clear" && distance > 0 && distance <= 100) {
-    for (int i = 0; i <= 11; i++) {
-      leds[i] = CRGB::Orange;
-      leds[i].fadeLightBy(brightness);
+  if (curr_payload == "Clear" && distance > 5 && distance <= 100) {
+    for ( uint32_t tStart = millis();  (millis() - tStart) < period;  ) { /*This for loop is used to run the LEDs for exactly a minute*/
+      for (int i = 0; i <= 11; i++) {
+        leds[i] = CRGB::Orange;
+        leds[i].fadeLightBy(brightness);
+      }
+      FastLED.show();
+      brightness = brightness + fadeAmount;
+      // reverse the direction of the fading at the ends of the fade:
+      if (brightness == 0 || brightness == 255) {
+        fadeAmount = -fadeAmount ;
+      }
+      delay(20); //delay of the fade in and out
     }
-    FastLED.show();
-    brightness = brightness + fadeAmount;
-    // reverse the direction of the fading at the ends of the fade:
-    if (brightness == 0 || brightness == 255) {
-      fadeAmount = -fadeAmount ;
-    }
-    delay(20); //delay of the fade in and out
   }
   else {
     for (int i = 0; i <= 11; i++) {
@@ -256,10 +350,27 @@ void loop() {
   }
 
   //Show the Rainy LEDS
-  if (curr_payload == "Rain" && distance > 0 && distance <= 100) {
+  if (curr_payload == "Rain" && distance > 5 && distance <= 100) {
+    for ( uint32_t tStart = millis();  (millis() - tStart) < period;  ) { /*This for loop is used to run the LEDs for exactly a minute*/
+      for (int i = 12; i <= 23; i++) {
+        leds[i] = CRGB::Blue;
+        addRainEffect(CRGB::DeepSkyBlue, CRGB::Blue, 12, 23);
+      }
+    }
+  }
+  else {
     for (int i = 12; i <= 23; i++) {
-      leds[i] = CRGB::Blue;
-      addDropEffect(CRGB::DeepSkyBlue, CRGB::Blue, 12, 23);
+      leds[i] = CRGB::Black;
+    }
+  }
+
+  //Show the Drizzle LEDS
+  if (curr_payload == "Drizzle" && distance > 5 && distance <= 100) {
+    for ( uint32_t tStart = millis();  (millis() - tStart) < period;  ) { /*This for loop is used to run the LEDs for exactly a minute*/
+      for (int i = 12; i <= 23; i++) {
+        leds[i] = CRGB::Blue;
+        addDrizzleEffect(CRGB::DeepSkyBlue, CRGB::Blue, 12, 23);
+      }
     }
   }
   else {
@@ -269,11 +380,30 @@ void loop() {
   }
 
   //Show the Stormy LEDS
-  if (curr_payload == "Thunderstorm" && distance > 0 && distance <= 100) {
-    for (int i = 24; i <= 35; i++) {
-      leds[i] = CRGB::DimGray;
-      addDropEffect(CRGB::Yellow, CRGB::DimGray, 24, 35);
-
+  if (curr_payload == "Thunderstorm" && distance > 5 && distance <= 100) {
+    for ( uint32_t tStart = millis();  (millis() - tStart) < period;  ) { /*This for loop is used to run the LEDs for exactly a minute*/
+      leds[25] = CRGB::Yellow;
+      leds[26] = CRGB::Yellow;
+      leds[27] = CRGB::Yellow;
+      leds[28] = CRGB::Yellow;
+      leds[29] = CRGB::Yellow;
+      leds[30] = CRGB::Yellow;
+      leds[31] = CRGB::Yellow;
+      leds[32] = CRGB::Yellow;
+      leds[33] = CRGB::Yellow;
+      FastLED.show();
+      delay(random8(5) * 20);
+      leds[25] = CRGB::Black;
+      leds[26] = CRGB::Black;
+      leds[27] = CRGB::Black;
+      leds[28] = CRGB::Black;
+      leds[29] = CRGB::Black;
+      leds[30] = CRGB::Black;
+      leds[31] = CRGB::Black;
+      leds[32] = CRGB::Black;
+      leds[33] = CRGB::Black;
+      FastLED.show();
+      delay(random8(5) * 600);
     }
   }
   else {
@@ -283,23 +413,34 @@ void loop() {
   }
 
   //Show the Cloudy LEDS
-  if (curr_payload == "Clouds" || curr_payload == "Atmosphere" && distance > 0 && distance <= 100) {
-    for (int i = 36; i <= 47; i++) {
-      leds[i] = CRGB::Green;
+  if (curr_payload == "Clouds" && distance > 5 && distance <= 100) {
+    for ( uint32_t tStart = millis();  (millis() - tStart) < period;  ) { /*This for loop is used to run the LEDs for exactly a minute*/
+      leds[37] = CRGB::Gray;
+      leds[38] = CRGB::Gray;
+      leds[39] = CRGB::Gray;
+      leds[40] = CRGB::Gray;
+      leds[41] = CRGB::Gray;
+      leds[42] = CRGB::Gray;
+      leds[43] = CRGB::Gray;
+      leds[44] = CRGB::Gray;
+      leds[45] = CRGB::Gray;
+      leds[46] = CRGB::Gray;
+      FastLED.show();
     }
   }
   else {
-    for (int i = 36; i <= 47; i++) {
+    for (int i = 37; i <= 46; i++) {
       leds[i] = CRGB::Black;
     }
   }
 
   //Show the Snowy LEDS
-  if (curr_payload == "Snow" && distance > 0 && distance <= 100) {
-    for (int i = 48; i <= 59; i++) {
-      leds[i] = CRGB::Gray;
-      addDropEffect(CRGB::GhostWhite, CRGB::Gray, 48, 59);
-
+  if (curr_payload == "Snow" && distance > 5 && distance <= 100) {
+    for ( uint32_t tStart = millis();  (millis() - tStart) < period;  ) { /*This for loop is used to run the LEDs for exactly a minute*/
+      for (int i = 48; i <= 59; i++) {
+        leds[i] = CRGB::Gray;
+        addDrizzleEffect(CRGB::GhostWhite, CRGB::Gray, 48, 59);
+      }
     }
   }
   else {
@@ -308,12 +449,10 @@ void loop() {
     }
   }
 
+  //Turn off all LEDs for testing
   if (curr_payload == "OFF") {
     for (int i = 0; i <= 59; i++) {
       leds[i] = CRGB::Black;
     }
   }
-
-
-
 }
