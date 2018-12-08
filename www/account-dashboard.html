@@ -10,18 +10,49 @@
 
   <link rel="stylesheet" href="/css/styles.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>  
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
 </head>
 
 <body>
+    <header>
+        <a href="/"><img src="/images/logov2.png"/></a><h1>iFrame</h1>
+      </header>
   <h1>Account Dashboard</h1>
+
+  <div id="weatherPanel">
+  <div class="form">
+  <h3><i class="fas fa-cloud-sun"></i> Weather Panel</h3>
   <form method="post" action="/weatherCheck" class="login-form">
     <input type="text" name="location" placeholder="City"/>
     <button type="submit">Send to iFrame</button>
   </form>
+  </div>
+  </div>
 
+  <div id="tempPanel">
+  <div class="form">
+  <h3><i class="fas fa-temperature-high"></i> Temperature Panel</h3>
   <form method="post" action="/tempCheck" class="login-form">
     <input type="text" name="location" placeholder="City"/>
     <button type="submit">Send to iFrame</button>
   </form>
+  </div>
+  </div>
+  <footer>
+    <div class="tabButtons" onclick="weatherTab()"><i class="fas fa-cloud-sun"></i></div>
+    <div id="seperator"></div>
+    <div class="tabButtons" onclick="tempTab()"><i class="fas fa-temperature-high"></i></div>
+  </footer>
+  <script>
+  function weatherTab() {
+  document.getElementById("weatherPanel").style.display = "block";
+  document.getElementById("tempPanel").style.display = "none";
+}
+
+function tempTab() {
+  document.getElementById("weatherPanel").style.display = "none";
+  document.getElementById("tempPanel").style.display = "block";
+}
+  </script>
 </body>
 </html>

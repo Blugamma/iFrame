@@ -2,7 +2,7 @@
 const express = require('express');
 const bodyParser = require(`body-parser`);
 const app = express();
-const port = 3000;
+const port = 8080;
 const request = require('request');
 var path = require('path');
 var mqtt = require('mqtt');
@@ -23,7 +23,6 @@ app.use(session({secret: 'iFrameSecretv2'}));
 app.listen(port, () => {
     console.log(`App is listening to ${port}`);
 });
-
 
 app.post('/signUp', function (req, res){
     //console.log(req.body);

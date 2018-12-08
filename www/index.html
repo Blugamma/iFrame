@@ -10,30 +10,35 @@
 
   <link rel="stylesheet" href="/css/styles.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 
 <body>
-   <!--  <form class="loginForm" method="get" action="login">
-        <p>Username:</p><input type="name" required="" maxlength="50" name="username" />
-        <p>Password:</p><input type="password" required="" name="password" />
-        <button  type="submit">Sign up</button>
-    </form> -->
+   <header>
+     <a href="/"><img src="/images/logov2.png"/></a><h1>iFrame</h1>
+   </header>
+   <div id="content">
+   <div id="aboutUs">
+     <h2>About Us</h2>
+     <p>iFrame is a multiple faced device that allows you to swap between the weather and the temperature in your local area. This is done by setting your location for the weather and temperate and then sending the weather/temperate data to the iFrame device!.</p>
+   </div>
     <div class="login-page">
         <div class="form">
           <form method="post" action="/signUp" class="register-form">
-            <input type="text" name="name" placeholder="name"/>
-            <input type="password" name="password" placeholder="password"/>
-            <input type="text" name="email" placeholder="email address"/>
+            <input type="text" name="name" placeholder="Name" required/>
+            <input type="password" name="password" placeholder="Password" required/>
+            <input type="text" name="email" placeholder="Email" required/>
             <button>create</button>
             <p class="message">Already registered? <a href="#">Sign In</a></p>
           </form>
           <form method="post" action="/login" class="login-form">
-            <input type="text" name="email" placeholder="Email"/>
+            <input type="text" name="email" placeholder="Email" required/>
             <input type="password" name="password" placeholder="Password"/>
             <button type="submit">login</button>
             <p class="message">Not registered? <a href="#">Create an account</a></p>
           </form>
         </div>
+      </div>
       </div>
       <script>
       $('.message a').click(function(){
