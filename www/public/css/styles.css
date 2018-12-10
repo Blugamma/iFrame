@@ -10,7 +10,7 @@ body{
 }
 
 #canvas{
-  margin-top: 50px;
+  padding-top: 10px;
   width:800px;
   margin: 0 auto;
 }
@@ -61,7 +61,6 @@ h1{
 }
 .form {
   position: relative;
-  z-index: 1;
   background: #FFFFFF;
   max-width: 360px;
   margin: 0 auto 100px;
@@ -195,12 +194,14 @@ h1{
 #weatherPanel{
   margin: 0 auto;
   width:90%;
+  z-index: -1000;
 }
 
 #tempPanel{
   display: none;
   margin: 0 auto;
   width:90%;
+  z-index: -1000;
 }
 
 

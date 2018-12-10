@@ -60,14 +60,15 @@
   </div>
   </div>
   <footer>
-    <div class="tabButtons" onclick="weatherTab()"><i class="fas fa-cloud-sun"></i></div>
+    <a href="#weatherPanel"><div class="tabButtons" onclick="weatherTab()"><i class="fas fa-cloud-sun"></i></div></a>
     <div id="seperator"></div>
-    <div class="tabButtons" onclick="tempTab()"><i class="fas fa-temperature-high"></i></div>
+    <a href="#tempPanel"><div class="tabButtons" onclick="tempTab()"><i class="fas fa-temperature-high"></i></div></a>
   </footer>
   <script>
   function weatherTab() {
   document.getElementById("weatherPanel").style.display = "block";
   document.getElementById("tempPanel").style.display = "none";
+
 }
 
 function tempTab() {
