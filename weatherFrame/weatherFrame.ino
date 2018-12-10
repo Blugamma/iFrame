@@ -2,6 +2,7 @@
 #include <SPI.h>
 #include <WiFi.h>
 #include <PubSubClient.h>
+
 FASTLED_USING_NAMESPACE
 
 
@@ -12,7 +13,8 @@ FASTLED_USING_NAMESPACE
 WiFiClient weatherFrame;
 PubSubClient client(weatherFrame);
 
-#define DATA_PIN    3
+
+#define DATA_PIN    8
 #define LED_TYPE    WS2812B
 #define COLOR_ORDER GRB
 #define NUM_LEDS    60
@@ -41,6 +43,7 @@ uint32_t period = 1 * 60000L;
 void setup() {
   delay( 3000 ); // power-up safety delay
   Serial.begin(9600);
+
   FastLED.addLeds<LED_TYPE, DATA_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
   // set master brightness control
   FastLED.setBrightness(BRIGHTNESS);
@@ -252,7 +255,7 @@ void loop() {
   int curr_payload_int = curr_payload.toInt() - 273.15; //calculate celsius from the Kelvin value
 
   //Very Cold
-  if (curr_payload_int <= 10 && distance > 5 && distance <= 100) {
+  if (curr_payload_int > 0 && curr_payload_int <= 10 && distance > 5 && distance <= 50) {
     for ( uint32_t tStart = millis();  (millis() - tStart) < period;  ) { /*This for loop is used to run the LEDs for exactly a minute*/
       for (int i = 0; i <= 9; i++) {
         leds[i] = CRGB::Purple;
@@ -267,7 +270,7 @@ void loop() {
     }
   }
   //Cold
-  if (curr_payload_int > 10 && curr_payload_int <= 15 && distance > 5 && distance <= 100) {
+  if (curr_payload_int > 10 && curr_payload_int <= 15 && distance > 5 && distance <= 50) {
     for ( uint32_t tStart = millis();  (millis() - tStart) < period;  ) { /*This for loop is used to run the LEDs for exactly a minute*/
       for (int i = 0; i <= 21; i++) {
         leds[i] = CRGB::Blue;
@@ -282,7 +285,7 @@ void loop() {
     }
   }
   //Warm
-  if (curr_payload_int > 15 && curr_payload_int <= 20 && distance > 5 && distance <= 100) {
+  if (curr_payload_int > 15 && curr_payload_int <= 20 && distance > 5 && distance <= 50) {
     for ( uint32_t tStart = millis();  (millis() - tStart) < period;  ) { /*This for loop is used to run the LEDs for exactly a minute*/
       for (int i = 0; i <= 33; i++) {
         leds[i] = CRGB::Yellow;
@@ -297,7 +300,7 @@ void loop() {
     }
   }
   //Hot
-  if (curr_payload_int > 20 && curr_payload_int <= 25 && distance > 5 && distance <= 100) {
+  if (curr_payload_int > 20 && curr_payload_int <= 25 && distance > 5 && distance <= 50) {
     for ( uint32_t tStart = millis();  (millis() - tStart) < period;  ) { /*This for loop is used to run the LEDs for exactly a minute*/
       for (int i = 0; i <= 46; i++) {
         leds[i] = CRGB::Orange;
@@ -313,7 +316,7 @@ void loop() {
   }
 
   //Very Hot
-  if (curr_payload_int > 25 && curr_payload_int <= 35 && distance > 5 && distance <= 100) {
+  if (curr_payload_int > 25 && curr_payload_int <= 35 && distance > 5 && distance <= 50) {
     for ( uint32_t tStart = millis();  (millis() - tStart) < period;  ) { /*This for loop is used to run the LEDs for exactly a minute*/
       for (int i = 0; i <= 59; i++) {
         leds[i] = CRGB::Red;
@@ -328,7 +331,7 @@ void loop() {
     }
   }
   //Show the Sunny LEDS
-  if (curr_payload == "Clear" && distance > 5 && distance <= 100) {
+  if (curr_payload == "Clear" && distance > 5 && distance <= 50) {
     for ( uint32_t tStart = millis();  (millis() - tStart) < period;  ) { /*This for loop is used to run the LEDs for exactly a minute*/
       for (int i = 0; i <= 11; i++) {
         leds[i] = CRGB::Orange;
@@ -350,7 +353,7 @@ void loop() {
   }
 
   //Show the Rainy LEDS
-  if (curr_payload == "Rain" && distance > 5 && distance <= 100) {
+  if (curr_payload == "Rain" && distance > 5 && distance <= 50) {
     for ( uint32_t tStart = millis();  (millis() - tStart) < period;  ) { /*This for loop is used to run the LEDs for exactly a minute*/
       for (int i = 12; i <= 23; i++) {
         leds[i] = CRGB::Blue;
@@ -365,7 +368,7 @@ void loop() {
   }
 
   //Show the Drizzle LEDS
-  if (curr_payload == "Drizzle" && distance > 5 && distance <= 100) {
+  if (curr_payload == "Drizzle" && distance > 5 && distance <= 50) {
     for ( uint32_t tStart = millis();  (millis() - tStart) < period;  ) { /*This for loop is used to run the LEDs for exactly a minute*/
       for (int i = 12; i <= 23; i++) {
         leds[i] = CRGB::Blue;
@@ -380,7 +383,7 @@ void loop() {
   }
 
   //Show the Stormy LEDS
-  if (curr_payload == "Thunderstorm" && distance > 5 && distance <= 100) {
+  if (curr_payload == "Thunderstorm" && distance > 5 && distance <= 50) {
     for ( uint32_t tStart = millis();  (millis() - tStart) < period;  ) { /*This for loop is used to run the LEDs for exactly a minute*/
       leds[25] = CRGB::Yellow;
       leds[26] = CRGB::Yellow;
@@ -413,7 +416,7 @@ void loop() {
   }
 
   //Show the Cloudy LEDS
-  if (curr_payload == "Clouds" && distance > 5 && distance <= 100) {
+  if (curr_payload == "Clouds" && distance > 5 && distance <= 50) {
     for ( uint32_t tStart = millis();  (millis() - tStart) < period;  ) { /*This for loop is used to run the LEDs for exactly a minute*/
       leds[37] = CRGB::Gray;
       leds[38] = CRGB::Gray;
@@ -435,7 +438,7 @@ void loop() {
   }
 
   //Show the Snowy LEDS
-  if (curr_payload == "Snow" && distance > 5 && distance <= 100) {
+  if (curr_payload == "Snow" && distance > 5 && distance <= 50) {
     for ( uint32_t tStart = millis();  (millis() - tStart) < period;  ) { /*This for loop is used to run the LEDs for exactly a minute*/
       for (int i = 48; i <= 59; i++) {
         leds[i] = CRGB::Gray;
