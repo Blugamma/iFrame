@@ -44,18 +44,17 @@ function drawWeather(){
 
             
         }
-
+        
         if (currentWeather == "Thunderstorm"){
-            image(thunderstorm, width/4, height/4, thunderstorm.width/4, thunderstorm.height/4);
-           
+            image(thunderstorm, width/6, height/6, thunderstorm.width/4, thunderstorm.height/4);
             if (temp != "NaNC"){
             fill(255);
             text(temp, thunderstorm.width + 35, thunderstorm.height + 60);
             }
         }
-
+        
         if (currentWeather == "Clear"){
-            image(sun, width/4, height/4, sun.width/4, sun.height/4);
+            image(sun, width/7.5, height/7.5, sun.width/4, sun.height/4);
             if (temp != "NaNC"){
             fill(255);
             text(temp, sun.width + 35, sun.height + 60);
@@ -65,11 +64,20 @@ function drawWeather(){
         }
 
         if (currentWeather == "Clouds"){
-            image(clouds, width/4, height/4, clouds.width/4, clouds.height/4);
+            image(clouds, width/5, height/5, clouds.width/4, clouds.height/4);
             if (temp != "NaNC"){
             fill(0);
            
-            text(temp, clouds.width + 40, clouds.height + 60);
+            text(temp, clouds.width, clouds.height + 20);
+            }
+        }
+       
+        if (currentWeather == "Snow"){
+            image(snow, width/3.5, height/3.5, clouds.width/4, clouds.height/4);
+            if (temp != "NaNC"){
+            fill(0);
+           
+            text(temp, clouds.width, clouds.height + 20);
             }
         }
 
@@ -89,7 +97,7 @@ function draw() {
     
     background(135, 206, 250);
     //fill(204, 101, 192, 127);
-    image(earth, width/3.05, height/3.05, earth.width/2, earth.height/2);
+    image(earth, width/2.8, height/2.8, earth.width/2, earth.height/2);
     translate(width/2, height/2);
    
 

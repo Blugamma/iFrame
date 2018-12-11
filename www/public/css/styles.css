@@ -10,6 +10,7 @@ body{
 }
 
 #canvas{
+  display:none;
   padding-top: 10px;
   width:800px;
   margin: 0 auto;
@@ -170,7 +171,7 @@ h1{
 
 .tabButtons{
   float:left;
-  width:49%;
+  width:31.33%;
   height:100%;
 }
 
