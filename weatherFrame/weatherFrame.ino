@@ -2,6 +2,8 @@
 #include <SPI.h>
 #include <WiFi.h>
 #include <PubSubClient.h>
+#include <MFRC522.h>
+#include <NewPing.h>
 
 FASTLED_USING_NAMESPACE
 
@@ -9,12 +11,18 @@ FASTLED_USING_NAMESPACE
 #if defined(FASTLED_VERSION) && (FASTLED_VERSION < 3001000)
 #warning "Requires FastLED 3.1 or later; check github for latest code."
 #endif
+#define SS_PIN SDA
+#define RST_PIN 9
+#define TRIGGER_PIN 5
+#define ECHO_PIN 4
+#define MAX_DISTANCE 50
 
 WiFiClient weatherFrame;
 PubSubClient client(weatherFrame);
+MFRC522 mfrc522(SS_PIN, RST_PIN);   // Create MFRC522 instance.
+NewPing sonar(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE); 
 
-
-#define DATA_PIN    8
+#define DATA_PIN    3
 #define LED_TYPE    WS2812B
 #define COLOR_ORDER GRB
 #define NUM_LEDS    60
@@ -34,25 +42,37 @@ uint8_t gHue = 0; // rotating "base color" used by many of the patterns
 int fadeAmount = 5;  // Set the amount to fade I usually do 5, 10, 15, 20, 25 etc even up to 255.
 int brightness = 0;
 // defines pins numbers
-const int trigPin = 7;
-const int echoPin = 6;
-long duration;
-int distance;
+//const int trigPin = 7;
+//const int echoPin = 6;
+//long duration;
+//long distance;
 uint32_t period = 1 * 60000L;
+String content= "";
 
+  
 void setup() {
-  delay( 3000 ); // power-up safety delay
-  Serial.begin(9600);
+   
 
+  delay( 3000 ); // power-up safety delay
+  //pinMode(echoPin, INPUT);
+  //pinMode(trigPin, OUTPUT);
+  
+  Serial.begin(9600);
+         // Initiate  SPI bus
+ 
   FastLED.addLeds<LED_TYPE, DATA_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
   // set master brightness control
   FastLED.setBrightness(BRIGHTNESS);
+ 
+   
   wifi_setup();
-  pinMode(trigPin, OUTPUT);
-  pinMode(echoPin, INPUT);
+   
+ 
+
   client.setClient(weatherFrame);
   client.setServer(mqttServer, mqttPort);
   client.setCallback(callback);
+ 
   while (!client.connected()) {
     Serial.println("Connecting to MQTT...");
     if (client.connect("weatherFrame")) {
@@ -64,9 +84,12 @@ void setup() {
       delay(2000);
     }
   }
-  client.publish("weatherFrame", "Hello Weather Frame");
+   client.publish("weatherFrame", "Hello Weather Frame");
   client.subscribe("weatherFrame");
-
+   SPI.begin();      // Initiate  SPI bus
+  mfrc522.PCD_Init();   // Initiate MFRC522
+  Serial.println("Approximate your card to the reader...");
+  Serial.println();
 }
 
 void wifi_setup() {
@@ -226,34 +249,57 @@ void addRainEffect(CRGB dropColor, CRGB mainColor, int lowLED, int highLED) {
 }
 
 
+
+
 void loop() {
+   
   if (!client.connected()) {
     reconnect();
   }
-
-  //Clears the trigPin
-  digitalWrite(trigPin, LOW);
-  delayMicroseconds(2);
-  //Sets the trigPin on HIGH state for 10 micro seconds
-  digitalWrite(trigPin, HIGH);
-  delayMicroseconds(10);
-  digitalWrite(trigPin, LOW);
-  //Reads the echoPin, returns the sound wave travel time in microseconds
-  duration = pulseIn(echoPin, HIGH);
-  //Calculating the distance
-  distance = duration * 0.034 / 2;
-  //Prints the distance on the Serial Monitor
+ unsigned int distance = sonar.ping_cm();
+ 
   Serial.print("Distance: ");
   Serial.println(distance);
 
   client.loop();
   String curr_payload((char*)inc_payload); //convert to a string data type//
 
-
+  
   FastLED.show();
-  //curr_payload = "308.15";
+  curr_payload = "308.15";
   int curr_payload_int = curr_payload.toInt() - 273.15; //calculate celsius from the Kelvin value
 
+  //Hard reset of the LEDs turning them all off.
+  for (int i = 0; i <= 59; i++) {
+      leds[i] = CRGB::Black;
+    }
+
+ // Look for new cards
+  if ( ! mfrc522.PICC_IsNewCardPresent()) 
+  {
+    return;
+  }
+  // Select one of the cards
+  if ( ! mfrc522.PICC_ReadCardSerial()) 
+  {
+    return;
+  }
+  //Show UID on serial monitor
+  //Serial.print("UID tag :");
+  String content= "";
+  byte letter;
+  for (byte i = 0; i < mfrc522.uid.size; i++) 
+  {
+     //Serial.print(mfrc522.uid.uidByte[i] < 0x10 ? " 0" : " ");
+    // Serial.print(mfrc522.uid.uidByte[i], HEX);
+     content.concat(String(mfrc522.uid.uidByte[i] < 0x10 ? " 0" : " "));
+     content.concat(String(mfrc522.uid.uidByte[i], HEX));
+  }
+ 
+  content.toUpperCase();  
+ if (content.substring(1) == "65 E3 8B C3") //change here the UID of the card/cards that you want to give access
+  {
+  
   //Very Cold
   if (curr_payload_int > 0 && curr_payload_int <= 10 && distance > 5 && distance <= 50) {
     for ( uint32_t tStart = millis();  (millis() - tStart) < period;  ) { /*This for loop is used to run the LEDs for exactly a minute*/
@@ -267,6 +313,7 @@ void loop() {
   else {
     for (int i = 0; i <= 59; i++) {
       leds[i] = CRGB::Black;
+      FastLED.show();
     }
   }
   //Cold
@@ -326,9 +373,8 @@ void loop() {
     }
   }
   else {
-    for (int i = 0; i <= 59; i++) {
-      leds[i] = CRGB::Black;
-    }
+    
+  }
   }
   //Show the Sunny LEDS
   if (curr_payload == "Clear" && distance > 5 && distance <= 50) {
